@@ -1,0 +1,24 @@
+{
+  "name": "@nononsense/use-form",
+  "version": "1.0.0",
+  "description": "No-nonsense React hook for form validation",
+  "main": "index.js",
+  "repository": "https://github.com/no-nonsense-dev/use-form.git",
+  "author": "louis-md <louis@margot-duclot.fr>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/lodash": "^4.14.172",
+    "@types/react": "^17.0.20",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2017", "dom"],
+    "esModuleInterop": true,
+  },
+  "files": ["index.ts"]
+}
