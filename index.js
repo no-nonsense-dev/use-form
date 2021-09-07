@@ -130,7 +130,7 @@ const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [
     };
     const handleKeyDown = (event) => {
         if (event.key === 'Enter')
-            onSubmit();
+            handleSubmit(null);
     };
     (0, react_1.useEffect)(() => {
         if (!disableKeyListener) {

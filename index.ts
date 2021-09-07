@@ -20,7 +20,7 @@ const useForm = ({
   const [valids, handleValids]:Array<any> = useState({})
   const [values, setValues]: Array<any> = useState(defaultValues || {})
 
-  const handleSubmit = (event: SyntheticEvent) => {
+  const handleSubmit = (event: SyntheticEvent|null) => {
     if (event) event.preventDefault()
     const errs: any = {}
     requireds.forEach((name: string) => {
@@ -158,7 +158,7 @@ const useForm = ({
   }
 
   const handleKeyDown = (event:KeyboardEvent) => {
-    if (event.key === 'Enter') onSubmit()
+    if (event.key === 'Enter') handleSubmit(null)
   }
 
   useEffect(() => {
