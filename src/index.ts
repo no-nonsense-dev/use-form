@@ -6,7 +6,7 @@ interface options {
   defaultValues?: object
   onSubmit?: Function
   requireds?: Array<string>
-  requiresValidation?: Array<string>
+  bypassValidation?: Array<string>
   onKeyDown?: Function | null
   disableKeyListener?: boolean
   customValidation?: Function
@@ -16,7 +16,7 @@ const useForm = ({
   defaultValues = {},
   onSubmit = () => {},
   requireds = [],
-  requiresValidation = [],
+  bypassValidation = [],
   onKeyDown = null,
   disableKeyListener = false,
   customValidation = () => {}
@@ -30,17 +30,19 @@ const useForm = ({
     ...customValidation(values)
   }
 
-  const validate = (value: any, fieldName: string) => {
-    if (validation[fieldName].test(value)) {
-      const { [fieldName]: value, ...errs } = errors
-      handleErrors({ ...errs })
-      handleValids({ ...valids, [fieldName]: true })
-    } else {
-      handleErrors({
-        ...errors,
-        [fieldName]: validation[fieldName].errorMessage
-      })
-      handleValids({ ...valids, [fieldName]: false })
+  const validate = (fieldName: string, value: any) => {
+    if (validation[fieldName]) {
+      if (validation[fieldName].test(value)) {
+        const { [fieldName]: value, ...errs } = errors
+        handleErrors({ ...errs })
+        handleValids({ ...valids, [fieldName]: true })
+      } else {
+        handleErrors({
+          ...errors,
+          [fieldName]: validation[fieldName].error
+        })
+        handleValids({ ...valids, [fieldName]: false })
+      }
     }
   }
 
@@ -50,7 +52,9 @@ const useForm = ({
     requireds.forEach((name: string) => {
       if (!values[name]) errs[name] = 'This field is mandatory.'
     })
-    requiresValidation.forEach(name => validate(name, values[name]))
+    Object.keys(validation).forEach(name => {
+      if (values[name]) validate(name, values[name])
+    })
 
     handleErrors({ ...errors, ...errs })
     if (isEmpty(errors) && isEmpty(errs)) {
@@ -89,13 +93,13 @@ const useForm = ({
   const handleBlur = (e: SyntheticEvent) => {
     const target = e.target as HTMLInputElement
     const { [target.name]: deleted, ...errs }: any = errors
-    if (requireds.includes(target.name) && !target.value) {
+    if (requireds.includes(target.name) && !values[target.name]) {
       handleErrors({ ...errs, [target.name]: 'This field is mandatory.' })
     } else if (
-      requiresValidation.includes(target.name) &&
+      !bypassValidation.includes(target.name) &&
       validation[target.name]
     ) {
-      validate(target.name, target.value)
+      validate(target.name, values[target.name])
     } else {
       handleErrors(errs)
       handleValids({ ...valids, [target.name]: true })

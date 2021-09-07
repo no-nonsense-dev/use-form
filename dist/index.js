@@ -17,20 +17,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
 const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
 const validation_1 = __importDefault(require("./validation"));
-const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], requiresValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = () => { } }) => {
+const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = () => { } }) => {
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const [values, setValues] = (0, react_1.useState)(defaultValues || {});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation(values));
-    const validate = (value, fieldName) => {
-        if (validation[fieldName].test(value)) {
-            const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-            handleErrors(Object.assign({}, errs));
-            handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
-        }
-        else {
-            handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].errorMessage }));
-            handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+    const validate = (fieldName, value) => {
+        if (validation[fieldName]) {
+            if (validation[fieldName].test(value)) {
+                const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+                handleErrors(Object.assign({}, errs));
+                handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+            }
+            else {
+                handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
+                handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+            }
         }
     };
     const handleSubmit = (event) => {
@@ -41,7 +43,10 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], req
             if (!values[name])
                 errs[name] = 'This field is mandatory.';
         });
-        requiresValidation.forEach(name => validate(name, values[name]));
+        Object.keys(validation).forEach(name => {
+            if (values[name])
+                validate(name, values[name]);
+        });
         handleErrors(Object.assign(Object.assign({}, errors), errs));
         if ((0, isEmpty_1.default)(errors) && (0, isEmpty_1.default)(errs)) {
             onSubmit(values);
@@ -71,12 +76,12 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], req
     const handleBlur = (e) => {
         const target = e.target;
         const _a = errors, _b = target.name, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        if (requireds.includes(target.name) && !target.value) {
+        if (requireds.includes(target.name) && !values[target.name]) {
             handleErrors(Object.assign(Object.assign({}, errs), { [target.name]: 'This field is mandatory.' }));
         }
-        else if (requiresValidation.includes(target.name) &&
+        else if (!bypassValidation.includes(target.name) &&
             validation[target.name]) {
-            validate(target.name, target.value);
+            validate(target.name, values[target.name]);
         }
         else {
             handleErrors(errs);
