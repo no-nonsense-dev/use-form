@@ -44,8 +44,6 @@ const MyComponent = () => {
       type='text'
       value={values.firstName || ''}
       name={'firstName'}
-      error={errors.firstName || false}
-      valid={valids.firstName || false}
       placeholder={'John'}
       onChange={handleChange}
       onBlur={handleBlur}
@@ -54,8 +52,6 @@ const MyComponent = () => {
       type='email'
       value={values.firstName || ''}
       name={'email'}
-      error={errors.firstName || false}
-      valid={valids.firstName || false}
       placeholder={'john.doe@acme.com'}
       onChange={handleChange}
       onBlur={handleBlur}
