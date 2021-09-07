@@ -24,6 +24,11 @@ import useForm from 'use-form'
 
 const onSubmit = data => console.log(data)
 
+const options = {
+  onSubmit,
+  requireds: ['firstName', 'email']
+}
+
 const MyComponent = () => {
   const {
     values,
@@ -32,10 +37,7 @@ const MyComponent = () => {
     handleChange,
     handleBlur,
     handleSubmit
-  } = useForm({
-    onSubmit,
-    requireds: ['firstName', 'email']
-  })
+  } = useForm(options)
 
   return (
     <input
@@ -67,12 +69,11 @@ const MyComponent = () => {
 
 The useForm hook accepts a number of options to customize its behavior:
 
-  * `onSubmit` - Callback function to be called when form is submitted
-  * `requireds` - Array of field names that are required
-  * `requiresValidation` - Array of field names that will be validated
-  * `defaultValues` - Object of field names and their corresponding default values
-  * `disableKeyListener` - Boolean to disable key listener (will not trigger handleSubmit on pressing Enter)
+- `onSubmit` - Callback function to be called when form is submitted
+- `requireds` - Array of field names that are required
+- `requiresValidation` - Array of field names that will be validated
+- `defaultValues` - Object of field names and their corresponding default values
+- `onKeyDown` - Function that will be passed to the key event listener. By default, handleSubmit is triggered when pressing Enter.
+- `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
 
 ## Advanced Usage
-
-
