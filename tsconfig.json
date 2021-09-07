@@ -3,6 +3,7 @@
   "compilerOptions": {
     "lib": ["es2017", "dom"],
     "esModuleInterop": true,
+    "outDir": "dist",
   },
-  "files": ["index.ts"]
+  "include": ["src/**/*"]
 }

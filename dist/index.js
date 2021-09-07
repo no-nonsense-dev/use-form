@@ -16,10 +16,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
 const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
-const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [''], requiresValidation = [''], disableKeyListener = false }) => {
+const validation_1 = __importDefault(require("./validation"));
+const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], requiresValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = () => { } }) => {
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const [values, setValues] = (0, react_1.useState)(defaultValues || {});
+    const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation(values));
+    const validate = (value, fieldName) => {
+        if (validation[fieldName].test(value)) {
+            const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+            handleErrors(Object.assign({}, errs));
+            handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+        }
+        else {
+            handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].errorMessage }));
+            handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+        }
+    };
     const handleSubmit = (event) => {
         if (event)
             event.preventDefault();
@@ -28,7 +41,7 @@ const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [
             if (!values[name])
                 errs[name] = 'This field is mandatory.';
         });
-        requiresValidation.forEach(name => standardValidation[name](values[name]));
+        requiresValidation.forEach(name => validate(name, values[name]));
         handleErrors(Object.assign(Object.assign({}, errors), errs));
         if ((0, isEmpty_1.default)(errors) && (0, isEmpty_1.default)(errs)) {
             onSubmit(values);
@@ -62,8 +75,8 @@ const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [
             handleErrors(Object.assign(Object.assign({}, errs), { [target.name]: 'This field is mandatory.' }));
         }
         else if (requiresValidation.includes(target.name) &&
-            standardValidation[target.name]) {
-            standardValidation[target.name](target.value);
+            validation[target.name]) {
+            validate(target.name, target.value);
         }
         else {
             handleErrors(errs);
@@ -91,47 +104,7 @@ const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [
             }
         }
     };
-    const validated = (fieldName) => {
-        const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        handleErrors(Object.assign({}, errs));
-        handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
-    };
-    const denied = (fieldName, message) => {
-        handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: message }));
-        handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
-    };
-    const standardValidation = {
-        phone: (value) => {
-            if (/^(?:00|\+)(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/.test(value)) {
-                return validated('phone');
-            }
-            return denied('phone', 'Please use international format ("+XX" or "00XX" without spaces).');
-        },
-        email: (value) => {
-            if (/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(value === null || value === void 0 ? void 0 : value.toLowerCase())) {
-                return validated('email');
-            }
-            return denied('email', 'This does not look like a valid email address.');
-        },
-        password: (value) => {
-            if (/^((?=\S*?[A-Z])(?=\S*?[a-z])(?=\S*?[0-9]).{7,})\S$/.test(value)) {
-                return validated('password');
-            }
-            else {
-                return denied('password', 'Passwords must contain at least 8 characters, 1 uppercase, 1 lowercase & 1 number.');
-            }
-        },
-        confirmPassword: (value) => {
-            if (values.password === value) {
-                return validated('confirmPassword');
-            }
-            return denied('confirmPassword', 'Passwords do not match.');
-        }
-    };
-    const handleKeyDown = (event) => {
-        if (event.key === 'Enter')
-            handleSubmit(null);
-    };
+    const handleKeyDown = (event) => onKeyDown ? onKeyDown() : event.key === 'Enter' ? handleSubmit(null) : null;
     (0, react_1.useEffect)(() => {
         if (!disableKeyListener) {
             window.addEventListener('keydown', handleKeyDown);
@@ -142,7 +115,7 @@ const useForm = ({ defaultValues = {}, onSubmit = (values) => { }, requireds = [
         errors,
         valids,
         values,
-        standardValidation,
+        validation,
         setValues,
         handleErrors,
         handleValids,
