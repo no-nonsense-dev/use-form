@@ -127,7 +127,7 @@ const useForm = ({
   }
 
   const handleKeyDown = (event: KeyboardEvent) =>
-    onKeyDown ? onKeyDown() : event.key === 'Enter' ? handleSubmit(null) : null
+    onKeyDown ? onKeyDown(event) : event.key === 'Enter' ? handleSubmit(null) : null
 
   useEffect(() => {
     if (!disableKeyListener) {

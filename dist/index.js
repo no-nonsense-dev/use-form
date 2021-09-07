@@ -104,7 +104,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], req
             }
         }
     };
-    const handleKeyDown = (event) => onKeyDown ? onKeyDown() : event.key === 'Enter' ? handleSubmit(null) : null;
+    const handleKeyDown = (event) => onKeyDown ? onKeyDown(event) : event.key === 'Enter' ? handleSubmit(null) : null;
     (0, react_1.useEffect)(() => {
         if (!disableKeyListener) {
             window.addEventListener('keydown', handleKeyDown);

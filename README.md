@@ -73,7 +73,7 @@ The useForm hook accepts a number of options to customize its behavior:
 - `defaultValues` - Object of field names and their corresponding default values
 - `requireds` - Array of field names that are required
 - `requiresValidation` - Array of field names that will be tested against standard and custom validation rules
-- `customValidation`- Function that takes the form values as parameter and returns an object of names and their corresponding validation test, and error message if it does not pass. It can override the default validation rules. See below for examples.
+- `customValidation`- Function that takes the form values as argument and returns an object of names and their corresponding validation test, and error message if it does not pass. It can override the default validation rules. See below for examples.
 - `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
 - `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
 
