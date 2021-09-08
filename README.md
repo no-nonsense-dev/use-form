@@ -176,12 +176,12 @@ const MyComponent = () => {
 
 ```
 
-Enforcing rules depending on other form values:
+#### Enforcing rules depending on other form values
+
+You can pass `values` as argument to options, so form values can be used in the tests:
 
 ```js
 const options = (values) => {
-  // Pass `values` as argument to options,
-  // so form values can be used in the tests:
   customValidation: {
     firstName: {
       test: value => value !== values.lastName,
@@ -196,12 +196,27 @@ const options = (values) => {
 
 ```
 
-Enforcing multiple rules in the same field:
+or even declare options right within your component:
 
 ```js
-const options = values => {
-  // handleErrors is passed to customValidation, and can be used
-  // inside the test function instead of a separate error message:
+{ values } = useForm({
+  customValidation: {
+    firstName: {
+      // Will work too!
+      test: value => value !== values.lastName,
+      error: 'First name must not be the same as last name'
+    }
+  }
+})
+
+```
+
+#### Enforcing multiple rules in the same field
+
+You can pass handleErrors to options so it can be used directly inside the test function. In this case, the error message will be added to the `errors` object.
+
+```js
+const options = (values, handleErrors) => {
   customValidation: {
     firstName: {
       test: value => {
@@ -219,24 +234,22 @@ const options = values => {
           return false
         } else return true
       }
-      // No error field is provided
     }
   }
 }
 ```
 
-Overriding standard validation:
+#### Overriding standard validation:
+
+In customValidation, you can pass a field name used in standardValidation to override its test rules. Let's try with `email`:
 
 ```js
 const options = {
   customValidation: {
-    // In customValidation, pass a field name used in
-    // standardValidation to override its test rules:
     email: {
       test: value => value.includes('@'),
       error: 'Email must be valid'
     }
-    //
   }
 }
 ```
@@ -247,11 +260,9 @@ onKeyDown can be used to trigger a function when a key is pressed, or override t
 
 ```js
 const options = {
-  // Pass a function to onKeyDown:
   onKeyDown: (e) => {
     if (e.key === 'Enter') {
       console.log('Enter pressed!')
     }
   }
-  //
 ```
