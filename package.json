@@ -1,6 +1,6 @@
 {
   "name": "@nononsense/use-form",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "No-nonsense React hook for form validation",
   "main": "dist/index.js",
   "repository": "https://github.com/no-nonsense-dev/use-form.git",

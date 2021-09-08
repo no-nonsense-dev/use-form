@@ -31,11 +31,15 @@ const useForm = ({
   }
 
   const validate = (fieldName: string, value: any) => {
-    if (validation[fieldName]) {
+    if (requireds.includes(fieldName) && isEmpty(value)) {
+      handleErrors({ ...errors, [fieldName]: 'This field is mandatory.' })
+      return false
+    } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
         const { [fieldName]: value, ...errs } = errors
         handleErrors({ ...errs })
         handleValids({ ...valids, [fieldName]: true })
+        return true
       } else {
         if (validation[fieldName].error) {
           handleErrors({
@@ -44,22 +48,33 @@ const useForm = ({
           })
         }
         handleValids({ ...valids, [fieldName]: false })
+        return false
       }
-    }
+    } else return true
   }
 
   const handleSubmit = (event: SyntheticEvent | null) => {
     if (event) event.preventDefault()
-    const errs: any = {}
-    requireds.forEach((name: string) => {
-      if (!values[name]) errs[name] = 'This field is mandatory.'
+    let errs:any = {}
+
+    Object.keys(validation).forEach(fieldName => {
+      if (!validate(fieldName, values[fieldName])) {
+        errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
+      }
     })
-    Object.keys(validation).forEach(name => {
-      if (values[name]) validate(name, values[name])
+
+    Object.entries(values).forEach(([name, value]) => {
+      if (!validate(name, value))
+        errs[name] = validation[name]?.error || 'Invalid value.'
+    })
+
+    requireds.forEach(name => {
+      if (!values[name]) errs[name] = 'This field is mandatory.'
     })
 
     handleErrors({ ...errors, ...errs })
-    if (isEmpty(errors) && isEmpty(errs)) {
+
+    if (isEmpty(errs) && isEmpty(errors)) {
       onSubmit(values)
     }
   }
@@ -95,17 +110,7 @@ const useForm = ({
   const handleBlur = (e: SyntheticEvent) => {
     const target = e.target as HTMLInputElement
     const { [target.name]: deleted, ...errs }: any = errors
-    if (requireds.includes(target.name) && !values[target.name]) {
-      handleErrors({ ...errs, [target.name]: 'This field is mandatory.' })
-    } else if (
-      !bypassValidation.includes(target.name) &&
-      validation[target.name]
-    ) {
-      validate(target.name, values[target.name])
-    } else {
-      handleErrors(errs)
-      handleValids({ ...valids, [target.name]: true })
-    }
+    validate(target.name, values[target.name])
   }
 
   const handleFileUpload = (event: SyntheticEvent) => {
@@ -150,6 +155,7 @@ const useForm = ({
     errors,
     valids,
     values,
+    validate,
     validation,
     setValues,
     handleErrors,

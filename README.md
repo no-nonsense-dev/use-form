@@ -82,6 +82,7 @@ The hook returns an object of properties to be used in the component:
 - `values` - Object of field names and their corresponding values.
 - `errors` - Object of field names and their corresponding error message. If no error property is present for a given field, this field should be considered valid.
 - `valids` - Object of field names and a boolean stating if this field is valid or not.
+- `validate` - Function that will validate fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if field is valid or not.
 - `validation` - Object of field names and the corresponding validation test that will be enforce, including customValidation & standardValidation.
 - `handleSubmit` - Function that takes a submit event as argument and calls the onSubmit callback function.
 - `handleChange` - Function that takes a change event as argument and updates the `values` object.
