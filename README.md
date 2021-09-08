@@ -180,7 +180,7 @@ Enforcing rules depending on other form values:
 
 ```js
 const options = (values) => {
-  // Pass `values` as argument to customValidation function,
+  // Pass `values` as argument to options,
   // so form values can be used in the tests:
   customValidation: {
     firstName: {
@@ -189,12 +189,17 @@ const options = (values) => {
     }
   }
 }
+
+// ...inside the component:
+{ values } = useForm(options(values))
+//
+
 ```
 
 Enforcing multiple rules in the same field:
 
 ```js
-const options = {
+const options = values => {
   // handleErrors is passed to customValidation, and can be used
   // inside the test function instead of a separate error message:
   customValidation: {
