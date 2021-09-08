@@ -23,32 +23,49 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
     const [values, setValues] = (0, react_1.useState)(defaultValues || {});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation(values));
     const validate = (fieldName, value) => {
-        if (validation[fieldName]) {
+        if (requireds.includes(fieldName) && (0, isEmpty_1.default)(value)) {
+            handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
+            return false;
+        }
+        else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
                 const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
                 handleErrors(Object.assign({}, errs));
                 handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+                return true;
             }
             else {
-                handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
+                if (validation[fieldName].error) {
+                    handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
+                }
                 handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+                return false;
             }
         }
+        else
+            return true;
     };
     const handleSubmit = (event) => {
         if (event)
             event.preventDefault();
-        const errs = {};
-        requireds.forEach((name) => {
+        let errs = {};
+        Object.keys(validation).forEach(fieldName => {
+            var _a;
+            if (!validate(fieldName, values[fieldName])) {
+                errs[fieldName] = ((_a = validation[fieldName]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
+            }
+        });
+        Object.entries(values).forEach(([name, value]) => {
+            var _a;
+            if (!validate(name, value))
+                errs[name] = ((_a = validation[name]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
+        });
+        requireds.forEach(name => {
             if (!values[name])
                 errs[name] = 'This field is mandatory.';
         });
-        Object.keys(validation).forEach(name => {
-            if (values[name])
-                validate(name, values[name]);
-        });
         handleErrors(Object.assign(Object.assign({}, errors), errs));
-        if ((0, isEmpty_1.default)(errors) && (0, isEmpty_1.default)(errs)) {
+        if ((0, isEmpty_1.default)(errs) && (0, isEmpty_1.default)(errors)) {
             onSubmit(values);
         }
     };
@@ -76,17 +93,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
     const handleBlur = (e) => {
         const target = e.target;
         const _a = errors, _b = target.name, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        if (requireds.includes(target.name) && !values[target.name]) {
-            handleErrors(Object.assign(Object.assign({}, errs), { [target.name]: 'This field is mandatory.' }));
-        }
-        else if (!bypassValidation.includes(target.name) &&
-            validation[target.name]) {
-            validate(target.name, values[target.name]);
-        }
-        else {
-            handleErrors(errs);
-            handleValids(Object.assign(Object.assign({}, valids), { [target.name]: true }));
-        }
+        validate(target.name, values[target.name]);
     };
     const handleFileUpload = (event) => {
         const target = event.target;
@@ -124,6 +131,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         errors,
         valids,
         values,
+        validate,
         validation,
         setValues,
         handleErrors,
