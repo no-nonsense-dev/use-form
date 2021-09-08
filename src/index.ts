@@ -37,10 +37,12 @@ const useForm = ({
         handleErrors({ ...errs })
         handleValids({ ...valids, [fieldName]: true })
       } else {
-        handleErrors({
-          ...errors,
-          [fieldName]: validation[fieldName].error
-        })
+        if (validation[fieldName].error) {
+          handleErrors({
+            ...errors,
+            [fieldName]: validation[fieldName].error
+          })
+        }
         handleValids({ ...valids, [fieldName]: false })
       }
     }
