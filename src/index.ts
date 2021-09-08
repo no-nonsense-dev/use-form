@@ -9,7 +9,7 @@ interface options {
   bypassValidation?: Array<string>
   onKeyDown?: Function | null
   disableKeyListener?: boolean
-  customValidation?: Function
+  customValidation?: any
 }
 
 const useForm = ({
@@ -19,7 +19,7 @@ const useForm = ({
   bypassValidation = [],
   onKeyDown = null,
   disableKeyListener = false,
-  customValidation = () => {}
+  customValidation = {}
 }: options) => {
   const [errors, handleErrors]: Array<any> = useState({})
   const [valids, handleValids]: Array<any> = useState({})
@@ -27,7 +27,7 @@ const useForm = ({
 
   const validation = {
     ...standardValidation(values),
-    ...customValidation(values)
+    ...customValidation
   }
 
   const validate = (fieldName: string, value: any) => {
@@ -55,9 +55,9 @@ const useForm = ({
 
   const handleSubmit = (event: SyntheticEvent | null) => {
     if (event) event.preventDefault()
-    let errs:any = {}
+    let errs: any = {}
 
-    Object.keys(validation).forEach(fieldName => {
+    Object.keys(customValidation).forEach(fieldName => {
       if (!validate(fieldName, values[fieldName])) {
         errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
       }

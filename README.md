@@ -70,7 +70,7 @@ The useForm hook accepts a number of options to customize its behavior:
 - `onSubmit` - Callback function to be called when form is submitted.
 - `defaultValues` - Object of field names and their corresponding default values.
 - `requireds` - Array of field names that are required.
-- `customValidation`- Function that takes the form values as argument and returns an object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
+- `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
 - `bypassValidation` - Array of field names that will not be tested against any validation rules.
 - `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
 - `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
@@ -117,11 +117,12 @@ const options = {
   requireds: ['firstName', 'email'],
 
   // Custom validation:
-  customValidation: () => ({
+  customValidation: {
     firstName: {
       test: value => value.length > 1,
       error: 'First name must be at least 2 characters long'
     }
+  }
   //
 
 }
@@ -178,14 +179,15 @@ const MyComponent = () => {
 Enforcing rules depending on other form values:
 
 ```js
-const options = {
+const options = (values) => {
   // Pass `values` as argument to customValidation function,
   // so form values can be used in the tests:
-  customValidation: (values) => ({
+  customValidation: {
     firstName: {
       test: value => value !== values.lastName,
       error: 'First name must not be the same as last name'
     }
+  }
 }
 ```
 
@@ -195,7 +197,7 @@ Enforcing multiple rules in the same field:
 const options = {
   // handleErrors is passed to customValidation, and can be used
   // inside the test function instead of a separate error message:
-  customValidation: (values, handleErrors) => ({
+  customValidation: {
     firstName: {
       test: value => {
         if (value === values.lastName) {
@@ -214,7 +216,7 @@ const options = {
       }
       // No error field is provided
     }
-  })
+  }
 }
 ```
 
@@ -222,7 +224,7 @@ Overriding standard validation:
 
 ```js
 const options = {
-  customValidation: (values, handleErrors) => ({
+  customValidation: {
     // In customValidation, pass a field name used in
     // standardValidation to override its test rules:
     email: {
@@ -230,7 +232,7 @@ const options = {
       error: 'Email must be valid'
     }
     //
-  })
+  }
 }
 ```
 
