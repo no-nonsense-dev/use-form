@@ -139,7 +139,7 @@ const useForm = ({
 
   const handleKeyDown = (event: KeyboardEvent) =>
     onKeyDown
-      ? onKeyDown(event, values)
+      ? onKeyDown(event)
       : event.key === 'Enter'
       ? handleSubmit(null)
       : null

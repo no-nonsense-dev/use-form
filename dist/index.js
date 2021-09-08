@@ -17,11 +17,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
 const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
 const validation_1 = __importDefault(require("./validation"));
-const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = () => { } }) => {
+const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {} }) => {
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const [values, setValues] = (0, react_1.useState)(defaultValues || {});
-    const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation(values));
+    const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
     const validate = (fieldName, value) => {
         if (requireds.includes(fieldName) && (0, isEmpty_1.default)(value)) {
             handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
@@ -49,7 +49,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         if (event)
             event.preventDefault();
         let errs = {};
-        Object.keys(validation).forEach(fieldName => {
+        Object.keys(customValidation).forEach(fieldName => {
             var _a;
             if (!validate(fieldName, values[fieldName])) {
                 errs[fieldName] = ((_a = validation[fieldName]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
@@ -117,7 +117,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         }
     };
     const handleKeyDown = (event) => onKeyDown
-        ? onKeyDown(event, values)
+        ? onKeyDown(event)
         : event.key === 'Enter'
             ? handleSubmit(null)
             : null;

@@ -248,9 +248,9 @@ onKeyDown can be used to trigger a function when a key is pressed, or override t
 ```js
 const options = {
   // Pass a function to onKeyDown:
-  onKeyDown: (e, values) => {
-    if (e.key === 'Enter' && values.firstName) {
-      console.log(values)
+  onKeyDown: (e) => {
+    if (e.key === 'Enter') {
+      console.log('Enter pressed!')
     }
   }
   //
