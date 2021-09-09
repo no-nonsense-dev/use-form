@@ -1,6 +1,6 @@
 # use-form
 
-Lightweight, un-opinionated, no-nonsense React hook for form validation
+Simple, lightweight, no-nonsense React hook for form validation.
 
 ## Installation
 
@@ -159,11 +159,11 @@ const options = (values) => {
 or even declare options right within your component:
 
 ```js
+// ...inside the component:
 { values } = useForm({
   customValidation: {
     firstName: {
-      // Will work too!
-      test: value => value !== values.lastName,
+      test: value => value !== values.lastName,       // Will work too!
       error: 'First name must not be the same as last name'
     }
   }
@@ -184,9 +184,7 @@ const options = (values, handleErrors) => {
           handleErrors({
             firstName: 'First name must not be the same as last name'
           })
-          // Don't forget to return false if test does not pass:
-          return false
-          //
+          return false // Don't forget to return false if test does not pass:
         } else if (value.length < 2) {
           handleErrors({
             firstName: 'First name must be at least 2 characters long'
