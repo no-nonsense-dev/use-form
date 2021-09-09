@@ -1,17 +1,17 @@
 # use-form
 
-Simple, lightweight, no-nonsense React hook for form validation.
+## Simple, lightweight, no-nonsense React hook for form validation.
 
 Why using use-form instead of more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
-- use-form is _simple_: you will get _all_ the benefits of robust form validation without the need to dive into long documentation, using code patterns that you already know.
-- use-form is _lightweight_: it is a tiny library (7k, 3k gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you _all_ that you need.
+- use-form is **simple**: you will get **all** the benefits of robust form validation without the need to dive into long documentation, using code patterns that you already know.
+- use-form is **lightweight**: it is a tiny library (7k, 3k gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
 - use-form is fast: forms re-render only when necessary (after validation).
 - use-form is un-opinionated: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
 - use-form is typechecked: it reduces errors by only enforcing the right types.
 
 In one word:
-- use-form is _no-nonsense_: it is safe, _easy_ to use, and _easy_ to understand.
+- use-form is **no-nonsense**: it is safe, **easy** to use, and **easy** to understand.
 
 ## Installation
 
@@ -145,7 +145,7 @@ const MyComponent = () => {
 
 ```
 
-### Enforcing rules depending on other form values
+#### Enforcing rules depending on other form values
 
 You can pass `values` as argument to options, so form values can be used in the tests:
 
@@ -162,7 +162,6 @@ const options = (values) => {
 // ...inside the component:
 { values } = useForm(options(values))
 //
-
 ```
 
 or even declare options right within your component:
