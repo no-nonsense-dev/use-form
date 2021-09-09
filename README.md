@@ -40,7 +40,6 @@ const options = {
 
 const MyComponent = () => {
   const {
-    values,
     handleChange,
     handleSubmit
   } = useForm(options)
