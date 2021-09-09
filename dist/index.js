@@ -15,15 +15,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
-const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
+const lodash_isempty_1 = __importDefault(require("lodash.isempty"));
 const validation_1 = __importDefault(require("./validation"));
 const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {} }) => {
+    let values = defaultValues;
+    const setValues = (newVal) => (values = newVal);
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
-    const [values, setValues] = (0, react_1.useState)(defaultValues || {});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
     const validate = (fieldName, value) => {
-        if (requireds.includes(fieldName) && (0, isEmpty_1.default)(value)) {
+        if (requireds.includes(fieldName) && (0, lodash_isempty_1.default)(value)) {
             handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
             return false;
         }
@@ -63,7 +64,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
                 errs[name] = 'This field is mandatory.';
         });
         handleErrors(Object.assign(Object.assign({}, errors), errs));
-        if ((0, isEmpty_1.default)(errs) && (0, isEmpty_1.default)(errors)) {
+        if ((0, lodash_isempty_1.default)(errs) && (0, lodash_isempty_1.default)(errors)) {
             return true;
         }
         else
@@ -134,6 +135,9 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         }
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [disableKeyListener, values]);
+    (0, react_1.useEffect)(() => {
+        setValues(defaultValues);
+    }, [defaultValues]);
     return {
         errors,
         valids,

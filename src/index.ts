@@ -1,5 +1,5 @@
 import { useState, useEffect, SyntheticEvent } from 'react'
-import isEmpty from 'lodash/isEmpty'
+import isEmpty from 'lodash.isempty'
 import standardValidation from './validation'
 
 interface options {
@@ -21,9 +21,10 @@ const useForm = ({
   disableKeyListener = false,
   customValidation = {}
 }: options) => {
+  let values: any = defaultValues
+  const setValues: Function = (newVal: object) => (values = newVal)
   const [errors, handleErrors]: Array<any> = useState({})
   const [valids, handleValids]: Array<any> = useState({})
-  const [values, setValues]: Array<any> = useState(defaultValues || {})
 
   const validation = {
     ...standardValidation(values),
@@ -155,6 +156,10 @@ const useForm = ({
     }
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [disableKeyListener, values])
+
+  useEffect(() => {
+    setValues(defaultValues)
+  }, [defaultValues])
 
   return {
     errors,
