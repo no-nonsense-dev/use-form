@@ -22,20 +22,15 @@ yarn add @nononsense/use-form
 import React from 'react'
 import useForm from '@nononsense/use-form'
 
-const onSubmit = data => console.log(data)
-
 const options = {
-  onSubmit,
+  onSubmit: data => console.log(data),
   requireds: ['firstName', 'email']
 }
 
 const MyComponent = () => {
   const {
     values,
-    errors,
-    valids,
     handleChange,
-    handleBlur,
     handleSubmit
   } = useForm(options)
 
@@ -46,7 +41,6 @@ const MyComponent = () => {
       name={'firstName'}
       placeholder={'John'}
       onChange={handleChange}
-      onBlur={handleBlur}
     />
     <input
       type='email'
@@ -54,7 +48,6 @@ const MyComponent = () => {
       name={'email'}
       placeholder={'john.doe@acme.com'}
       onChange={handleChange}
-      onBlur={handleBlur}
     />
     <button onClick={handleSubmit}>Submit</button>
   )
