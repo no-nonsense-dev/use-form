@@ -53,8 +53,7 @@ const useForm = ({
     } else return true
   }
 
-  const handleSubmit = (event: SyntheticEvent | null) => {
-    if (event) event.preventDefault()
+  const validateAll = () => {
     let errs: any = {}
 
     Object.keys(customValidation).forEach(fieldName => {
@@ -62,7 +61,6 @@ const useForm = ({
         errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
       }
     })
-
     Object.entries(values).forEach(([name, value]) => {
       if (!validate(name, value))
         errs[name] = validation[name]?.error || 'Invalid value.'
@@ -75,6 +73,13 @@ const useForm = ({
     handleErrors({ ...errors, ...errs })
 
     if (isEmpty(errs) && isEmpty(errors)) {
+      return true
+    } else return false
+  }
+
+  const handleSubmit = (event: SyntheticEvent | null) => {
+    if (event) event.preventDefault()
+    if (validateAll()) {
       onSubmit(values)
     }
   }
@@ -156,6 +161,7 @@ const useForm = ({
     valids,
     values,
     validate,
+    validateAll,
     validation,
     setValues,
     handleErrors,

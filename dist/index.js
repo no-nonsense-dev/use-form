@@ -45,9 +45,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         else
             return true;
     };
-    const handleSubmit = (event) => {
-        if (event)
-            event.preventDefault();
+    const validateAll = () => {
         let errs = {};
         Object.keys(customValidation).forEach(fieldName => {
             var _a;
@@ -66,6 +64,15 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         });
         handleErrors(Object.assign(Object.assign({}, errors), errs));
         if ((0, isEmpty_1.default)(errs) && (0, isEmpty_1.default)(errors)) {
+            return true;
+        }
+        else
+            return false;
+    };
+    const handleSubmit = (event) => {
+        if (event)
+            event.preventDefault();
+        if (validateAll()) {
             onSubmit(values);
         }
     };
@@ -132,6 +139,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         valids,
         values,
         validate,
+        validateAll,
         validation,
         setValues,
         handleErrors,

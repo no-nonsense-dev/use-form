@@ -61,39 +61,6 @@ const MyComponent = () => {
 }
 ```
 
-## API
-
-### Options
-
-The useForm hook accepts a number of options to customize its behavior:
-
-- `onSubmit` - Callback function to be called when form is submitted.
-- `defaultValues` - Object of field names and their corresponding default values.
-- `requireds` - Array of field names that are required.
-- `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
-- `bypassValidation` - Array of field names that will not be tested against any validation rules.
-- `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
-- `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
-
-### Returned values
-
-The hook returns an object of properties to be used in the component:
-
-- `values` - Object of field names and their corresponding values.
-- `errors` - Object of field names and their corresponding error message. If no error property is present for a given field, this field should be considered valid.
-- `valids` - Object of field names and a boolean stating if this field is valid or not.
-- `validate` - Function that will validate fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if field is valid or not.
-- `validation` - Object of field names and the corresponding validation test that will be enforce, including customValidation & standardValidation.
-- `handleSubmit` - Function that takes a submit event as argument and calls the onSubmit callback function.
-- `handleChange` - Function that takes a change event as argument and updates the `values` object.
-- `handleBlur` - Function that takes a blur event as argument and updates the errors and valids objects on input blur.
-- `handleChangeCheckbox` - Function that takes a change event from a checkbox input as argument and updates the `values` object.
-- `handleChangeRadio` - Function that takes a change event from a radio as argument and updates the `values` object.
-- `handleFileUpload` - Function that takes a change event from a file upload as argument and updates the `values` object.
-- `handleErrors` - Function to manually change the `errors` object.
-- `handleValids` - Function to manually change the `valids` object.
-- `setValues` - Function to manually set the `values` object without triggering validation.
-
 ## Advanced Usage
 
 ### Standard validation
@@ -266,3 +233,37 @@ const options = {
     }
   }
 ```
+
+## API Reference
+
+### Options
+
+The useForm hook accepts a number of options to customize its behavior:
+
+- `onSubmit` - Callback function to be called when form is submitted.
+- `defaultValues` - Object of field names and their corresponding default values.
+- `requireds` - Array of field names that are required.
+- `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
+- `bypassValidation` - Array of field names that will not be tested against any validation rules.
+- `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
+- `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
+
+### Returned values
+
+The hook returns an object of properties to be used in the component:
+
+- `values` - Object of field names and their corresponding values.
+- `errors` - Object of field names and their corresponding error message. If no error property is present for a given field, this field should be considered valid.
+- `valids` - Object of field names and a boolean stating if this field is valid or not.
+- `validate` - Function that will validate fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if field is valid or not.
+- `validateAll` - Function that will validate all fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if all fields are valid or not.
+- `validation` - Object of field names and the corresponding validation test that will be enforce, including customValidation & standardValidation.
+- `handleSubmit` - Function that takes a submit event as argument and calls the onSubmit callback function.
+- `handleChange` - Function that takes a change event as argument and updates the `values` object.
+- `handleBlur` - Function that takes a blur event as argument and updates the errors and valids objects on input blur.
+- `handleChangeCheckbox` - Function that takes a change event from a checkbox input as argument and updates the `values` object.
+- `handleChangeRadio` - Function that takes a change event from a radio as argument and updates the `values` object.
+- `handleFileUpload` - Function that takes a change event from a file upload as argument and updates the `values` object.
+- `handleErrors` - Function to manually change the `errors` object.
+- `handleValids` - Function to manually change the `valids` object.
+- `setValues` - Function to manually set the `values` object without triggering validation.
