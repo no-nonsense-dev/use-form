@@ -12,6 +12,9 @@ interface options {
   customValidation?: any
 }
 
+let values: any = {}
+const setValues: Function = (newVal: object) => (values = newVal)
+
 const useForm = ({
   defaultValues = {},
   onSubmit = () => {},
@@ -21,8 +24,6 @@ const useForm = ({
   disableKeyListener = false,
   customValidation = {}
 }: options) => {
-  let values: any = defaultValues
-  const setValues: Function = (newVal: object) => (values = newVal)
   const [errors, handleErrors]: Array<any> = useState({})
   const [valids, handleValids]: Array<any> = useState({})
 
@@ -158,8 +159,13 @@ const useForm = ({
   }, [disableKeyListener, values])
 
   useEffect(() => {
-    setValues(defaultValues)
-  }, [defaultValues])
+    if (isEmpty(values)) {
+      setValues(defaultValues)
+    }
+    return () => {
+      setValues({})
+    }
+  }, [values, defaultValues])
 
   return {
     errors,

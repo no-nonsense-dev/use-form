@@ -17,9 +17,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
 const lodash_isempty_1 = __importDefault(require("lodash.isempty"));
 const validation_1 = __importDefault(require("./validation"));
+let values = {};
+const setValues = (newVal) => (values = newVal);
 const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {} }) => {
-    let values = defaultValues;
-    const setValues = (newVal) => (values = newVal);
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
@@ -136,8 +136,13 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [disableKeyListener, values]);
     (0, react_1.useEffect)(() => {
-        setValues(defaultValues);
-    }, [defaultValues]);
+        if ((0, lodash_isempty_1.default)(values)) {
+            setValues(defaultValues);
+        }
+        return () => {
+            setValues({});
+        };
+    }, [values, defaultValues]);
     return {
         errors,
         valids,

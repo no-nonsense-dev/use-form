@@ -2,16 +2,16 @@
 
 ## Simple, lightweight, no-nonsense React hook for form validation.
 
-Why using use-form instead of more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
+Why is using use-form more suited for you than using more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
-- use-form is **simple**: you will get **all** the benefits of robust form validation without the need to dive into long documentation, using code patterns that you already know.
+- use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns that you already know, without the need to dive into documentation.
 - use-form is **lightweight**: it is a tiny library (7k, 3k gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
-- use-form is fast: forms re-render only when necessary (after validation).
-- use-form is un-opinionated: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
-- use-form is typechecked: it reduces errors by only enforcing the right types.
+- use-form is **fast**: re-renders only when necessary (after validation).
+- use-form is **un-opinionated**: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
+- use-form is **typechecked**: it reduces errors by always enforcing only the right types.
 
 In one word:
-- use-form is **no-nonsense**: it is safe, **easy** to use, and **easy** to understand.
+- use-form is **no-nonsense**: it is **safe**, **easy** to use, and **easy** to understand.
 
 ## Installation
 
@@ -48,21 +48,18 @@ const MyComponent = () => {
   return (
     <input
       type='text'
-      name={'firstName'}
-      placeholder={'John'}
+      name='firstName'
       onChange={handleChange}
     />
     <input
       type='email'
-      name={'email'}
-      placeholder={'john.doe@acme.com'}
+      name='email'
       onChange={handleChange}
     />
     <button onClick={handleSubmit}>Submit</button>
   )
 }
 ```
-As simple as it gets.
 
 ## Advanced Usage
 
@@ -110,11 +107,10 @@ const MyComponent = () => {
   return (
     <input
       type='text'
-      placeholder={'John'}
       onChange={handleChange}
 
       // Make sure to give the same name as in customValidation:
-      name={'firstName'}
+      name='firstName'
       //
 
       // Validation will be triggered on blur:
@@ -164,7 +160,7 @@ const options = (values) => {
 //
 ```
 
-or even declare options right within your component:
+or declare options directly within your component:
 
 ```js
 // ...inside the component:
@@ -181,10 +177,9 @@ or even declare options right within your component:
 
 #### Enforcing multiple rules in the same field
 
-You can pass handleErrors to options so it can be used directly inside the test function. In this case, the error message will be added to the `errors` object.
-
 ```js
-const options = (values, handleErrors) => {
+const options = {
+  // ...useForm options
   customValidation: {
     firstName: {
       test: value => {
@@ -199,7 +194,7 @@ const options = (values, handleErrors) => {
           })
           return false
         } else return true
-      }
+      } // No error message needed, because it's handled by the test function
     }
   }
 }
