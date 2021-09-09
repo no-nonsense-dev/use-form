@@ -162,10 +162,9 @@ const useForm = ({
     if (isEmpty(values)) {
       setValues(defaultValues)
     }
-    return () => {
-      setValues({})
-    }
   }, [values, defaultValues])
+
+  useEffect(() => setValues({}), [])
 
   return {
     errors,
