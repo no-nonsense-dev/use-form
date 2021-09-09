@@ -5,7 +5,7 @@
 Why is using use-form more suited for you than using more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
 - use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns that you already know, without the need to dive into documentation.
-- use-form is **lightweight**: it is a tiny library (7k, 3k gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
+- use-form is **lightweight**: it is a tiny library (7kB, 3kB gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
 - use-form is **fast**: re-renders only when necessary (after validation).
 - use-form is **un-opinionated**: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
 - use-form is **typechecked**: it reduces errors by always enforcing only the right types.
