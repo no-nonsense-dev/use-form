@@ -139,10 +139,8 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         if ((0, lodash_isempty_1.default)(values)) {
             setValues(defaultValues);
         }
-        return () => {
-            setValues({});
-        };
     }, [values, defaultValues]);
+    (0, react_1.useEffect)(() => setValues({}), []);
     return {
         errors,
         valids,

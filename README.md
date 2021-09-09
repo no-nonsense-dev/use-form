@@ -4,7 +4,7 @@
 
 Why is using use-form more suited for you than using more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
-- use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns that you already know, without the need to dive into documentation.
+- use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns that you already know, without the need to dive into deep documentation.
 - use-form is **lightweight**: it is a tiny library (7kB, 3kB gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
 - use-form is **fast**: re-renders only when necessary (after validation).
 - use-form is **un-opinionated**: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
@@ -112,7 +112,7 @@ const MyComponent = () => {
       name='firstName'
       //
 
-      // Validation will be triggered on blur:
+      // Validation can be triggered on blur, in addition to handleSubmit:
       onBlur={handleBlur}
       //
 
@@ -235,7 +235,7 @@ The useForm hook accepts a number of options to customize its behavior:
 
 - `onSubmit` - Callback function to be called when form is submitted.
 - `defaultValues` - Object of field names and their corresponding default values.
-- `requireds` - Array of field names that are required.
+- `requireds` - Array of field names that are required. Note that the `required` HTML attribute is ignored.
 - `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
 - `bypassValidation` - Array of field names that will not be tested against any validation rules.
 - `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
