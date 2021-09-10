@@ -236,8 +236,8 @@ const options = {
 - `defaultValues` - Object of field names and their corresponding default values.
 - `requireds` - Array of field names that are required. Note that the `required` HTML attribute is ignored.
 - `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
-- `bypassValidation` - Array of field names that will not be tested against any validation rules.
-- `onKeyDown` - Function that will be passed to the key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
+- `bypassValidation` - Array of field names that will not be tested against validation rules. Note that requireds will not be bypassed.
+- `onKeyDown` - Function that will be passed to `useForm`'s key event listener. If left undefined, handleSubmit will be triggered when pressing Enter.
 - `disableKeyListener` - Boolean to disable the key listener. If true, will also disable the function passed to onKeyDown.
 
 ### Returned values
@@ -247,7 +247,7 @@ The hook returns an object of properties to be used in your component:
 - `values` - Object of field names and their current values.
 - `errors` - Object of field names and their current error message. If no error property is present for a given field, this field will be considered valid.
 - `valids` - Object of field names and a boolean stating if this field is currently valid or not.
-- `validate` - Function that will validate fields against all the validation rules. It will trigger handleValids & handleErrors to add/remove error messages & validity, and return a boolean stating if the field is valid or not.
+- `validate` - Function that will validate fields against all the validation rules. It will trigger handleValids (unless `bypassValids` is set to `true`) & handleErrors, and will return a boolean stating if the field is valid or not. Prototype: `(name, field, bypassValids) => boolean`
 - `validateAll` - Function that will validate all fields against validation rules. Will trigger handleValids & handleErrors to add/remove error messages & validity, and return a boolean stating if all fields are valid or not.
 - `validation` - Object of field names and the corresponding validation test(s) that will be enforced. This includes customValidation & standardValidation.
 - `handleSubmit` - Function that takes a submit event as argument and calls `onSubmit` if `validateAll` returns `true`.

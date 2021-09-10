@@ -23,7 +23,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
-    const validate = (fieldName, value) => {
+    const validate = (fieldName, value, bypassValids = false) => {
         if (requireds.includes(fieldName) && (0, lodash_isempty_1.default)(value)) {
             handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
             return false;
@@ -32,14 +32,14 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
             if (validation[fieldName].test(value)) {
                 const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
                 handleErrors(Object.assign({}, errs));
-                handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+                !bypassValids && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
                 return true;
             }
             else {
                 if (validation[fieldName].error) {
                     handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
                 }
-                handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+                !bypassValids && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
                 return false;
             }
         }
@@ -136,11 +136,14 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [disableKeyListener, values]);
     (0, react_1.useEffect)(() => {
-        if ((0, lodash_isempty_1.default)(values)) {
+        if ((0, lodash_isempty_1.default)(values) && !(0, lodash_isempty_1.default)(defaultValues)) {
             setValues(defaultValues);
+            Object.entries(defaultValues).forEach(([name, value]) => {
+                validate(name, value, true);
+            });
         }
     }, [values, defaultValues]);
-    (0, react_1.useEffect)(() => setValues({}), []);
+    (0, react_1.useEffect)(() => () => setValues({}), []);
     return {
         errors,
         valids,

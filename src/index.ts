@@ -32,7 +32,11 @@ const useForm = ({
     ...customValidation
   }
 
-  const validate = (fieldName: string, value: any) => {
+  const validate = (
+    fieldName: string,
+    value: any,
+    bypassValids: boolean = false
+  ) => {
     if (requireds.includes(fieldName) && isEmpty(value)) {
       handleErrors({ ...errors, [fieldName]: 'This field is mandatory.' })
       return false
@@ -40,7 +44,7 @@ const useForm = ({
       if (validation[fieldName].test(value)) {
         const { [fieldName]: value, ...errs } = errors
         handleErrors({ ...errs })
-        handleValids({ ...valids, [fieldName]: true })
+        !bypassValids && handleValids({ ...valids, [fieldName]: true })
         return true
       } else {
         if (validation[fieldName].error) {
@@ -49,7 +53,7 @@ const useForm = ({
             [fieldName]: validation[fieldName].error
           })
         }
-        handleValids({ ...valids, [fieldName]: false })
+        !bypassValids && handleValids({ ...valids, [fieldName]: false })
         return false
       }
     } else return true
@@ -159,12 +163,15 @@ const useForm = ({
   }, [disableKeyListener, values])
 
   useEffect(() => {
-    if (isEmpty(values)) {
+    if (isEmpty(values) && !isEmpty(defaultValues)) {
       setValues(defaultValues)
+      Object.entries(defaultValues).forEach(([name, value]) => {
+        validate(name, value, true)
+      })
     }
   }, [values, defaultValues])
 
-  useEffect(() => setValues({}), [])
+  useEffect(() => () => setValues({}), [])
 
   return {
     errors,
