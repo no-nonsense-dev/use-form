@@ -2,11 +2,11 @@
 
 ## Simple, lightweight, no-nonsense React hook for form validation.
 
-Why is using use-form more suited for you than using more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
+Why using use-form versus more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
-- use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns that you already know, without the need to dive into deep documentation.
+- use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns  you already know, without the need to dive into deep documentation.
 - use-form is **lightweight**: it is a tiny library (7kB, 3kB gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
-- use-form is **fast**: re-renders only when necessary (after validation).
+- use-form is **fast**: it re-renders your component only when necessary (after validation).
 - use-form is **un-opinionated**: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
 - use-form is **typechecked**: it reduces errors by always enforcing only the right types.
 
@@ -18,7 +18,7 @@ In one word:
 Using npm:
 
 ```console
-npm install --save @nononsense/use-form
+npm i --save @nononsense/use-form
 ```
 
 Using yarn:
@@ -155,7 +155,7 @@ const options = (values) => {
 }
 
 // ...inside the component:
-{ values } = useForm(options(values))
+const { values } = useForm(options(values))
 //
 ```
 
@@ -177,8 +177,7 @@ or declare options directly within your component:
 #### Enforcing multiple rules in the same field
 
 ```js
-const options = {
-  // ...useForm options
+const { values, handleErrors } = useForm({
   customValidation: {
     firstName: {
       test: value => {
@@ -196,7 +195,7 @@ const options = {
       } // No error message needed, because it's handled by the test function
     }
   }
-}
+})
 ```
 
 #### Overriding standard validation:
@@ -214,9 +213,9 @@ const options = {
 }
 ```
 
-### Key listeners
+#### Key listeners
 
-onKeyDown can be used to trigger a function when a key is pressed, or override the default behavior of handleSubmit when pressing Enter:
+`onKeyDown` can be used to trigger a function when a key is pressed, or override the default behavior of handleSubmit when pressing Enter:
 
 ```js
 const options = {
@@ -231,7 +230,7 @@ const options = {
 
 ### Options
 
-The useForm hook accepts a number of options to customize its behavior:
+`useForm` accepts a limited number of options to customize its behavior:
 
 - `onSubmit` - Callback function to be called when form is submitted.
 - `defaultValues` - Object of field names and their corresponding default values.
@@ -243,20 +242,20 @@ The useForm hook accepts a number of options to customize its behavior:
 
 ### Returned values
 
-The hook returns an object of properties to be used in the component:
+The hook returns an object of properties to be used in your component:
 
-- `values` - Object of field names and their corresponding values.
-- `errors` - Object of field names and their corresponding error message. If no error property is present for a given field, this field should be considered valid.
-- `valids` - Object of field names and a boolean stating if this field is valid or not.
-- `validate` - Function that will validate fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if field is valid or not.
-- `validateAll` - Function that will validate all fields against validation rules. Will trigger handleValids & handleErrors to add/remove validity & error messages, and return a boolean stating if all fields are valid or not.
-- `validation` - Object of field names and the corresponding validation test that will be enforce, including customValidation & standardValidation.
-- `handleSubmit` - Function that takes a submit event as argument and calls the onSubmit callback function.
+- `values` - Object of field names and their current values.
+- `errors` - Object of field names and their current error message. If no error property is present for a given field, this field will be considered valid.
+- `valids` - Object of field names and a boolean stating if this field is currently valid or not.
+- `validate` - Function that will validate fields against all the validation rules. It will trigger handleValids & handleErrors to add/remove error messages & validity, and return a boolean stating if the field is valid or not.
+- `validateAll` - Function that will validate all fields against validation rules. Will trigger handleValids & handleErrors to add/remove error messages & validity, and return a boolean stating if all fields are valid or not.
+- `validation` - Object of field names and the corresponding validation test(s) that will be enforced. This includes customValidation & standardValidation.
+- `handleSubmit` - Function that takes a submit event as argument and calls `onSubmit` if `validateAll` returns `true`.
 - `handleChange` - Function that takes a change event as argument and updates the `values` object.
-- `handleBlur` - Function that takes a blur event as argument and updates the errors and valids objects on input blur.
+- `handleBlur` - Function that takes a blur event as argument and applies `validate` on the event target.
 - `handleChangeCheckbox` - Function that takes a change event from a checkbox input as argument and updates the `values` object.
 - `handleChangeRadio` - Function that takes a change event from a radio as argument and updates the `values` object.
 - `handleFileUpload` - Function that takes a change event from a file upload as argument and updates the `values` object.
-- `handleErrors` - Function to manually change the `errors` object.
-- `handleValids` - Function to manually change the `valids` object.
-- `setValues` - Function to manually set the `values` object without triggering validation.
+- `handleErrors` - Function to manually set the `errors` object.
+- `handleValids` - Function to manually set the `valids` object.
+- `setValues` - Function to manually set the `values` object (without triggering any validation).
