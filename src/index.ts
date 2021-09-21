@@ -10,6 +10,10 @@ interface options {
   onKeyDown?: Function | null
   disableKeyListener?: boolean
   customValidation?: any
+  validateOnChange?: Array<string>
+  validateOnBlur?: Array<string>
+  validateOnSubmit?: Array<string>
+  validateDefaultValuesOnMount?: boolean
 }
 
 let values: any = {}
@@ -22,7 +26,11 @@ const useForm = ({
   bypassValidation = [],
   onKeyDown = null,
   disableKeyListener = false,
-  customValidation = {}
+  customValidation = {},
+  validateOnChange = [],
+  validateOnBlur = [],
+  validateOnSubmit = [],
+  validateDefaultValuesOnMount = false
 }: options) => {
   const [errors, handleErrors]: Array<any> = useState({})
   const [valids, handleValids]: Array<any> = useState({})
@@ -32,44 +40,49 @@ const useForm = ({
     ...customValidation
   }
 
-  const validate = (
-    fieldName: string,
-    value: any,
-    bypassValids: boolean = false
-  ) => {
-    if (requireds.includes(fieldName) && isEmpty(value)) {
-      handleErrors({ ...errors, [fieldName]: 'This field is mandatory.' })
+  const validate = (fieldName: string, value: any, silent: boolean = false) => {
+    if (
+      requireds.includes(fieldName) &&
+      ((typeof value === 'object' && isEmpty(value)) || !value)
+    ) {
+      !silent &&
+        handleErrors({ ...errors, [fieldName]: 'This field is mandatory.' })
+      !silent && handleValids({ ...valids, [fieldName]: false })
       return false
     } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
         const { [fieldName]: value, ...errs } = errors
-        handleErrors({ ...errs })
-        !bypassValids && handleValids({ ...valids, [fieldName]: true })
+        !silent && handleErrors({ ...errs })
+        !silent && handleValids({ ...valids, [fieldName]: true })
         return true
       } else {
-        if (validation[fieldName].error) {
+        if (validation[fieldName].error && !silent) {
           handleErrors({
             ...errors,
             [fieldName]: validation[fieldName].error
           })
         }
-        !bypassValids && handleValids({ ...valids, [fieldName]: false })
+        !silent && handleValids({ ...valids, [fieldName]: false })
         return false
       }
     } else return true
   }
 
-  const validateAll = () => {
+  const validateAll = (bypassedFieldNames: Array<string>) => {
     let errs: any = {}
 
     Object.keys(customValidation).forEach(fieldName => {
-      if (!validate(fieldName, values[fieldName])) {
+      if (
+        !validate(fieldName, values[fieldName]) &&
+        !bypassedFieldNames.includes(fieldName)
+      ) {
         errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
       }
     })
     Object.entries(values).forEach(([name, value]) => {
-      if (!validate(name, value))
+      if (!validate(name, value) && !bypassedFieldNames.includes(name)) {
         errs[name] = validation[name]?.error || 'Invalid value.'
+      }
     })
 
     requireds.forEach(name => {
@@ -85,43 +98,59 @@ const useForm = ({
 
   const handleSubmit = (event: SyntheticEvent | null) => {
     if (event) event.preventDefault()
-    if (validateAll()) {
+    if (validateAll(validateOnSubmit)) {
       onSubmit(values)
     }
+  }
+
+  const cleanFieldError = (fieldName: string) => {
+    const { [fieldName]: deleted, ...errs } = errors
+    handleErrors({ ...errs })
+  }
+
+  const validateFieldOnChange = (fieldName: string, value: any) => {
+    if (validateOnChange.includes(fieldName)) {
+      validate(fieldName, value)
+    } else cleanFieldError(fieldName)
   }
 
   const handleChange = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement
     if (event.persist) event.persist()
     setValues({ ...values, [target.name]: target.value })
-    const { [target.name]: deleted, ...errs }: any = errors
-    handleErrors({ ...errs })
-    handleValids(
-      values.confirmPassword
-        ? { ...valids, [target.name]: null, confirmPassword: null }
-        : { ...valids, [target.name]: null }
-    )
+    validateFieldOnChange(target.name, target.value)
+    if (!validateOnChange.includes(target.name)) {
+      handleValids(
+        values.confirmPassword
+          ? { ...valids, [target.name]: null, confirmPassword: null }
+          : { ...valids, [target.name]: null }
+      )
+    }
   }
 
   const handleChangeCheckbox = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement
     if (event.persist) event.persist()
-    setValues((values: object) => ({
+    setValues({
       ...values,
       [target.name]: target.checked
-    }))
+    })
+    validateFieldOnChange(target.name, target.checked)
   }
 
   const handleChangeRadio = (fieldName: string, fieldValue: any) => {
     if (values[fieldName] !== fieldValue) {
-      setValues((values: object) => ({ ...values, [fieldName]: fieldValue }))
+      setValues({ ...values, [fieldName]: fieldValue })
     }
+    validateFieldOnChange(fieldName, fieldValue)
   }
 
   const handleBlur = (e: SyntheticEvent) => {
     const target = e.target as HTMLInputElement
     const { [target.name]: deleted, ...errs }: any = errors
-    validate(target.name, values[target.name])
+    if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
+      validate(target.name, values[target.name])
+    }
   }
 
   const handleFileUpload = (event: SyntheticEvent) => {
@@ -145,6 +174,7 @@ const useForm = ({
         })()
         reader.readAsDataURL(files[i])
       }
+      validateFieldOnChange(target.name, newFormState[target.name])
     }
   }
 
@@ -166,7 +196,7 @@ const useForm = ({
     if (isEmpty(values) && !isEmpty(defaultValues)) {
       setValues(defaultValues)
       Object.entries(defaultValues).forEach(([name, value]) => {
-        validate(name, value, true)
+        validate(name, value, validateDefaultValuesOnMount ? false : true)
       })
     }
   }, [values, defaultValues])

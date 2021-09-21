@@ -19,45 +19,50 @@ const lodash_isempty_1 = __importDefault(require("lodash.isempty"));
 const validation_1 = __importDefault(require("./validation"));
 let values = {};
 const setValues = (newVal) => (values = newVal);
-const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {} }) => {
+const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false }) => {
     const [errors, handleErrors] = (0, react_1.useState)({});
     const [valids, handleValids] = (0, react_1.useState)({});
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
-    const validate = (fieldName, value, bypassValids = false) => {
-        if (requireds.includes(fieldName) && (0, lodash_isempty_1.default)(value)) {
-            handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
+    const validate = (fieldName, value, silent = false) => {
+        if (requireds.includes(fieldName) &&
+            ((typeof value === 'object' && (0, lodash_isempty_1.default)(value)) || !value)) {
+            !silent &&
+                handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
+            !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
             return false;
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
                 const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-                handleErrors(Object.assign({}, errs));
-                !bypassValids && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+                !silent && handleErrors(Object.assign({}, errs));
+                !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
                 return true;
             }
             else {
-                if (validation[fieldName].error) {
+                if (validation[fieldName].error && !silent) {
                     handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
                 }
-                !bypassValids && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+                !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
                 return false;
             }
         }
         else
             return true;
     };
-    const validateAll = () => {
+    const validateAll = (bypassedFieldNames) => {
         let errs = {};
         Object.keys(customValidation).forEach(fieldName => {
             var _a;
-            if (!validate(fieldName, values[fieldName])) {
+            if (!validate(fieldName, values[fieldName]) &&
+                !bypassedFieldNames.includes(fieldName)) {
                 errs[fieldName] = ((_a = validation[fieldName]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
             }
         });
         Object.entries(values).forEach(([name, value]) => {
             var _a;
-            if (!validate(name, value))
+            if (!validate(name, value) && !bypassedFieldNames.includes(name)) {
                 errs[name] = ((_a = validation[name]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
+            }
         });
         requireds.forEach(name => {
             if (!values[name])
@@ -73,35 +78,51 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
     const handleSubmit = (event) => {
         if (event)
             event.preventDefault();
-        if (validateAll()) {
+        if (validateAll(validateOnSubmit)) {
             onSubmit(values);
         }
+    };
+    const cleanFieldError = (fieldName) => {
+        const _a = errors, _b = fieldName, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+        handleErrors(Object.assign({}, errs));
+    };
+    const validateFieldOnChange = (fieldName, value) => {
+        if (validateOnChange.includes(fieldName)) {
+            validate(fieldName, value);
+        }
+        else
+            cleanFieldError(fieldName);
     };
     const handleChange = (event) => {
         const target = event.target;
         if (event.persist)
             event.persist();
         setValues(Object.assign(Object.assign({}, values), { [target.name]: target.value }));
-        const _a = errors, _b = target.name, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        handleErrors(Object.assign({}, errs));
-        handleValids(values.confirmPassword
-            ? Object.assign(Object.assign({}, valids), { [target.name]: null, confirmPassword: null }) : Object.assign(Object.assign({}, valids), { [target.name]: null }));
+        validateFieldOnChange(target.name, target.value);
+        if (!validateOnChange.includes(target.name)) {
+            handleValids(values.confirmPassword
+                ? Object.assign(Object.assign({}, valids), { [target.name]: null, confirmPassword: null }) : Object.assign(Object.assign({}, valids), { [target.name]: null }));
+        }
     };
     const handleChangeCheckbox = (event) => {
         const target = event.target;
         if (event.persist)
             event.persist();
-        setValues((values) => (Object.assign(Object.assign({}, values), { [target.name]: target.checked })));
+        setValues(Object.assign(Object.assign({}, values), { [target.name]: target.checked }));
+        validateFieldOnChange(target.name, target.checked);
     };
     const handleChangeRadio = (fieldName, fieldValue) => {
         if (values[fieldName] !== fieldValue) {
-            setValues((values) => (Object.assign(Object.assign({}, values), { [fieldName]: fieldValue })));
+            setValues(Object.assign(Object.assign({}, values), { [fieldName]: fieldValue }));
         }
+        validateFieldOnChange(fieldName, fieldValue);
     };
     const handleBlur = (e) => {
         const target = e.target;
         const _a = errors, _b = target.name, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        validate(target.name, values[target.name]);
+        if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
+            validate(target.name, values[target.name]);
+        }
     };
     const handleFileUpload = (event) => {
         const target = event.target;
@@ -122,6 +143,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
                 })();
                 reader.readAsDataURL(files[i]);
             }
+            validateFieldOnChange(target.name, newFormState[target.name]);
         }
     };
     const handleKeyDown = (event) => onKeyDown
@@ -139,7 +161,7 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
         if ((0, lodash_isempty_1.default)(values) && !(0, lodash_isempty_1.default)(defaultValues)) {
             setValues(defaultValues);
             Object.entries(defaultValues).forEach(([name, value]) => {
-                validate(name, value, true);
+                validate(name, value, validateDefaultValuesOnMount ? false : true);
             });
         }
     }, [values, defaultValues]);
