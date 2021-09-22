@@ -195,9 +195,11 @@ const useForm = ({
   useEffect(() => {
     if (isEmpty(values) && !isEmpty(defaultValues)) {
       setValues(defaultValues)
-      Object.entries(defaultValues).forEach(([name, value]) => {
-        validate(name, value, validateDefaultValuesOnMount ? false : true)
-      })
+      if (validateDefaultValuesOnMount) {
+        Object.entries(defaultValues).forEach(([name, value]) => {
+          validate(name, value)
+        })
+      } else handleErrors({})
     }
   }, [values, defaultValues])
 

@@ -160,9 +160,13 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
     (0, react_1.useEffect)(() => {
         if ((0, lodash_isempty_1.default)(values) && !(0, lodash_isempty_1.default)(defaultValues)) {
             setValues(defaultValues);
-            Object.entries(defaultValues).forEach(([name, value]) => {
-                validate(name, value, validateDefaultValuesOnMount ? false : true);
-            });
+            if (validateDefaultValuesOnMount) {
+                Object.entries(defaultValues).forEach(([name, value]) => {
+                    validate(name, value);
+                });
+            }
+            else
+                handleErrors({});
         }
     }, [values, defaultValues]);
     (0, react_1.useEffect)(() => () => setValues({}), []);
