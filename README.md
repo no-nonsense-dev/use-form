@@ -87,6 +87,7 @@ const options = {
       error: 'First name must be at least 2 characters long'
     }
   }
+  // validateOnChange: true
 }
 
 const MyComponent = () => {
@@ -102,15 +103,17 @@ const MyComponent = () => {
   return (
     <input
       type='text'
-      onChange={handleChange}
 
       // Make sure to give the same name as in customValidation:
       name='firstName'
       //
 
-      // Validation can be triggered on blur, in addition to handleSubmit:
+      // By default, validation will be triggered on blur:
       onBlur={handleBlur}
-      //
+
+      // You can also trigger it on change, if you set the `validateOnChange` option to `true`:
+      onChange={handleChange}
+      // If you don't, you don't even have to use onChange at all!
 
       // Input style can be modified according to validation:
       style={{
@@ -230,6 +233,7 @@ const options = {
 
 - `onSubmit` - Callback function to be called when form is submitted.
 - `defaultValues` - Object of field names and their corresponding default values.
+- `formName` - A unique name is required if two instances (or more) of `useForm` are concurrently mounted.
 - `requireds` - Array of field names that are required. Note that the `required` HTML attribute is ignored.
 - `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
 - `bypassValidation` - Array of field names that will not be tested against validation rules. Note that if required fields are passed, they remain required.
@@ -239,6 +243,11 @@ const options = {
 - `validateOnChange` - Array of field names to validate when they are changed, not only on blur.
 - `validateOnBlur` - Array of field names to validate when they are blurred. If provided, will override default behaviour and disable validation on blur for all fields, except those provided.
 - `validateOnSubmit` - Array of field names to validate when form is submitted. If provided, will override default behaviour and disable validation on submit for all fields, except those provided.
+- `rerenderOnValidation` - Boolean to rerender the component when any field is validated. Defaults to `true`.
+- `rerenderOnChange` - Boolean to rerender the component when form is changed. Defaults to `false`.
+- `rerenderOnSubmit` - Boolean to rerender the component when form is submitted. Defaults to `false`. Note that since `handleSubmit` triggers `validateAll`, setting this option won't have any effect if `rerenderOnValidation` is set to `true`.
+- `disableRerenders` - Array of field names that, if changed or validated, won't trigger a rerender.
+- `resetOnUnmount` - Boolean to reset `values`, `errors` and `valids` when component is unmounted. Defaults to `true`. If set to `false`, please make sure to give a unique `formName` to each instance of `useForm`.
 
 ### Returned values
 

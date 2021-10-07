@@ -14,120 +14,148 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.standardValidation = void 0;
 const react_1 = require("react");
 const lodash_isempty_1 = __importDefault(require("lodash.isempty"));
 const validation_1 = __importDefault(require("./validation"));
-let values = {};
-const setValues = (newVal) => (values = newVal);
-const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false }) => {
-    const [errors, handleErrors] = (0, react_1.useState)({});
-    const [valids, handleValids] = (0, react_1.useState)({});
-    const validation = Object.assign(Object.assign({}, (0, validation_1.default)(values)), customValidation);
+exports.standardValidation = validation_1.default;
+let forms = {};
+const setForm = (newVal, formName, prop) => (forms = Object.assign(Object.assign({}, forms), { [formName]: Object.assign(Object.assign({}, forms[formName]), { [prop]: newVal }) }));
+const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false, rerenderOnChange = false, rerenderOnValidation = true, rerenderOnSubmit = false, disableRerenders = [], resetOnUnmount = true }) => {
+    var _a, _b, _c, _d, _e, _f;
+    const setValues = (value) => setForm(value, formName, 'values');
+    const handleErrors = (value) => setForm(value, formName, 'errors');
+    const handleValids = (value) => setForm(value, formName, 'valids');
+    const [_, triggerRender] = (0, react_1.useState)(0);
+    const rerender = () => triggerRender(Math.random());
+    const validation = Object.assign(Object.assign({}, (0, validation_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values)), customValidation);
     const validate = (fieldName, value, silent = false) => {
+        var _a, _b, _c, _d, _e, _f;
         if (requireds.includes(fieldName) &&
             ((typeof value === 'object' && (0, lodash_isempty_1.default)(value)) || !value)) {
             !silent &&
-                handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: 'This field is mandatory.' }));
-            !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+                handleErrors(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.errors), { [fieldName]: 'This field is mandatory.' }));
+            !silent &&
+                handleValids(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.valids), { [fieldName]: false }));
+            rerenderOnValidation &&
+                !disableRerenders.includes(fieldName) &&
+                rerender();
             return false;
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
-                const _a = errors, _b = fieldName, value = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+                const _g = (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors, _h = fieldName, value = _g[_h], errs = __rest(_g, [typeof _h === "symbol" ? _h : _h + ""]);
                 !silent && handleErrors(Object.assign({}, errs));
-                !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: true }));
+                !silent &&
+                    handleValids(Object.assign(Object.assign({}, (_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids), { [fieldName]: true }));
+                rerenderOnValidation &&
+                    !disableRerenders.includes(fieldName) &&
+                    rerender();
                 return true;
             }
             else {
                 if (validation[fieldName].error && !silent) {
-                    handleErrors(Object.assign(Object.assign({}, errors), { [fieldName]: validation[fieldName].error }));
+                    handleErrors(Object.assign(Object.assign({}, (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors), { [fieldName]: validation[fieldName].error || 'Invalid value' }));
                 }
-                !silent && handleValids(Object.assign(Object.assign({}, valids), { [fieldName]: false }));
+                !silent &&
+                    handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: false }));
+                rerenderOnValidation &&
+                    !disableRerenders.includes(fieldName) &&
+                    rerender();
                 return false;
             }
         }
         else
             return true;
     };
-    const validateAll = (bypassedFieldNames) => {
+    const validateAll = (fieldNames) => {
+        var _a, _b, _c, _d;
+        const fieldsToValidate = fieldNames.length === 0
+            ? Object.keys((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values)
+            : fieldNames;
         let errs = {};
         Object.keys(customValidation).forEach(fieldName => {
-            var _a;
-            if (!validate(fieldName, values[fieldName]) &&
-                !bypassedFieldNames.includes(fieldName)) {
-                errs[fieldName] = ((_a = validation[fieldName]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
+            var _a, _b;
+            if (!validate(fieldName, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[fieldName]) &&
+                fieldsToValidate.includes(fieldName)) {
+                errs[fieldName] = ((_b = validation[fieldName]) === null || _b === void 0 ? void 0 : _b.error) || 'Invalid value.';
             }
         });
-        Object.entries(values).forEach(([name, value]) => {
+        Object.entries((_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values).forEach(([name, value]) => {
             var _a;
-            if (!validate(name, value) && !bypassedFieldNames.includes(name)) {
+            if (!validate(name, value) && fieldsToValidate.includes(name)) {
                 errs[name] = ((_a = validation[name]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
             }
         });
         requireds.forEach(name => {
-            if (!values[name])
+            var _a;
+            if (!((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[name]))
                 errs[name] = 'This field is mandatory.';
         });
-        handleErrors(Object.assign(Object.assign({}, errors), errs));
-        if ((0, lodash_isempty_1.default)(errs) && (0, lodash_isempty_1.default)(errors)) {
+        handleErrors(Object.assign(Object.assign({}, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors), errs));
+        if ((0, lodash_isempty_1.default)(errs) && (0, lodash_isempty_1.default)((_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.errors)) {
             return true;
         }
         else
             return false;
     };
     const handleSubmit = (event) => {
+        var _a;
         if (event)
             event.preventDefault();
         if (validateAll(validateOnSubmit)) {
-            onSubmit(values);
+            onSubmit((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values);
+            !rerenderOnValidation && rerenderOnSubmit && rerender();
         }
-    };
-    const cleanFieldError = (fieldName) => {
-        const _a = errors, _b = fieldName, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        handleErrors(Object.assign({}, errs));
     };
     const validateFieldOnChange = (fieldName, value) => {
+        var _a, _b, _c;
         if (validateOnChange.includes(fieldName)) {
+            if (fieldName === 'password') {
+                handleValids(((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values.confirmPassword)
+                    ? Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.valids), { [fieldName]: null, confirmPassword: null }) : Object.assign(Object.assign({}, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.valids), { [fieldName]: null }));
+            }
             validate(fieldName, value);
         }
-        else
-            cleanFieldError(fieldName);
     };
     const handleChange = (event) => {
+        var _a;
         const target = event.target;
         if (event.persist)
             event.persist();
-        setValues(Object.assign(Object.assign({}, values), { [target.name]: target.value }));
+        setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.value }));
         validateFieldOnChange(target.name, target.value);
-        if (!validateOnChange.includes(target.name)) {
-            handleValids(values.confirmPassword
-                ? Object.assign(Object.assign({}, valids), { [target.name]: null, confirmPassword: null }) : Object.assign(Object.assign({}, valids), { [target.name]: null }));
-        }
+        rerenderOnChange && !disableRerenders.includes(target.name) && rerender();
     };
     const handleChangeCheckbox = (event) => {
+        var _a;
         const target = event.target;
         if (event.persist)
             event.persist();
-        setValues(Object.assign(Object.assign({}, values), { [target.name]: target.checked }));
+        setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.checked }));
         validateFieldOnChange(target.name, target.checked);
     };
     const handleChangeRadio = (fieldName, fieldValue) => {
-        if (values[fieldName] !== fieldValue) {
-            setValues(Object.assign(Object.assign({}, values), { [fieldName]: fieldValue }));
+        var _a, _b;
+        if (((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[fieldName]) !== fieldValue) {
+            setValues(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values), { [fieldName]: fieldValue }));
         }
         validateFieldOnChange(fieldName, fieldValue);
     };
     const handleBlur = (e) => {
+        var _a, _b, _c;
         const target = e.target;
-        const _a = errors, _b = target.name, deleted = _a[_b], errs = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+        setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.value }));
+        const _d = (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.errors, _e = target.name, deleted = _d[_e], errs = __rest(_d, [typeof _e === "symbol" ? _e : _e + ""]);
         if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-            validate(target.name, values[target.name]);
+            validate(target.name, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values[target.name]);
         }
     };
     const handleFileUpload = (event) => {
+        var _a;
         const target = event.target;
         const { files } = target;
-        const newFormState = Object.assign({}, values);
+        const newFormState = Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values);
         if (!newFormState[target.name]) {
             newFormState[target.name] = [];
         }
@@ -139,7 +167,8 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
                         ...newFormState[target.name],
                         reader.result
                     ];
-                    return setValues(newFormState);
+                    setValues(newFormState);
+                    return null;
                 })();
                 reader.readAsDataURL(files[i]);
             }
@@ -156,24 +185,38 @@ const useForm = ({ defaultValues = {}, onSubmit = () => { }, requireds = [], byp
             window.addEventListener('keydown', handleKeyDown);
         }
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [disableKeyListener, values]);
+    }, [disableKeyListener, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values]);
     (0, react_1.useEffect)(() => {
-        if ((0, lodash_isempty_1.default)(values) && !(0, lodash_isempty_1.default)(defaultValues)) {
+        var _a;
+        if ((0, lodash_isempty_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values) && !(0, lodash_isempty_1.default)(defaultValues)) {
             setValues(defaultValues);
             if (validateDefaultValuesOnMount) {
                 Object.entries(defaultValues).forEach(([name, value]) => {
                     validate(name, value);
                 });
             }
-            else
-                handleErrors({});
+            rerender();
         }
-    }, [values, defaultValues]);
-    (0, react_1.useEffect)(() => () => setValues({}), []);
+    }, [(_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values, validateDefaultValuesOnMount, defaultValues]);
+    (0, react_1.useEffect)(() => {
+        if (!forms[formName]) {
+            setValues({});
+            handleValids({});
+            handleErrors({});
+            rerender();
+        }
+        return () => {
+            if (resetOnUnmount) {
+                setValues({});
+                handleValids({});
+                handleErrors({});
+            }
+        };
+    }, [forms[formName]]);
     return {
-        errors,
-        valids,
-        values,
+        errors: ((_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.errors) || {},
+        valids: ((_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.valids) || {},
+        values: ((_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.values) || {},
         validate,
         validateAll,
         validation,

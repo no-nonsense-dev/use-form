@@ -3,24 +3,38 @@ import isEmpty from 'lodash.isempty'
 import standardValidation from './validation'
 
 interface options {
-  defaultValues?: object
-  onSubmit?: Function
-  requireds?: Array<string>
-  bypassValidation?: Array<string>
-  onKeyDown?: Function | null
-  disableKeyListener?: boolean
-  customValidation?: any
-  validateOnChange?: Array<string>
-  validateOnBlur?: Array<string>
-  validateOnSubmit?: Array<string>
-  validateDefaultValuesOnMount?: boolean
+  formName: string
+  defaultValues: object
+  onSubmit: Function
+  requireds: Array<string>
+  bypassValidation: Array<string>
+  onKeyDown: Function | null
+  disableKeyListener: boolean
+  customValidation: any
+  validateOnChange: Array<string>
+  validateOnBlur: Array<string>
+  validateOnSubmit: Array<string>
+  validateDefaultValuesOnMount: boolean
+  rerenderOnValidation: boolean
+  rerenderOnChange: boolean
+  rerenderOnSubmit: boolean
+  disableRerenders: Array<string>
+  resetOnUnmount: boolean
 }
 
-let values: any = {}
-const setValues: Function = (newVal: object) => (values = newVal)
+let forms: any = {}
+const setForm: Function = (newVal: object, formName: string, prop: string) =>
+  (forms = {
+    ...forms,
+    [formName]: {
+      ...forms[formName],
+      [prop]: newVal
+    }
+  })
 
 const useForm = ({
   defaultValues = {},
+  formName = 'UnnamedForm',
   onSubmit = () => {},
   requireds = [],
   bypassValidation = [],
@@ -30,13 +44,21 @@ const useForm = ({
   validateOnChange = [],
   validateOnBlur = [],
   validateOnSubmit = [],
-  validateDefaultValuesOnMount = false
+  validateDefaultValuesOnMount = false,
+  rerenderOnChange = false,
+  rerenderOnValidation = true,
+  rerenderOnSubmit = false,
+  disableRerenders = [],
+  resetOnUnmount = true
 }: options) => {
-  const [errors, handleErrors]: Array<any> = useState({})
-  const [valids, handleValids]: Array<any> = useState({})
+  const setValues = (value: any) => setForm(value, formName, 'values')
+  const handleErrors = (value: any) => setForm(value, formName, 'errors')
+  const handleValids = (value: any) => setForm(value, formName, 'valids')
+  const [_, triggerRender] = useState(0)
+  const rerender = () => triggerRender(Math.random())
 
   const validation = {
-    ...standardValidation(values),
+    ...standardValidation(forms[formName]?.values),
     ...customValidation
   }
 
@@ -46,52 +68,72 @@ const useForm = ({
       ((typeof value === 'object' && isEmpty(value)) || !value)
     ) {
       !silent &&
-        handleErrors({ ...errors, [fieldName]: 'This field is mandatory.' })
-      !silent && handleValids({ ...valids, [fieldName]: false })
+        handleErrors({
+          ...forms[formName]?.errors,
+          [fieldName]: 'This field is mandatory.'
+        })
+      !silent &&
+        handleValids({ ...forms[formName]?.valids, [fieldName]: false })
+      rerenderOnValidation &&
+        !disableRerenders.includes(fieldName) &&
+        rerender()
       return false
     } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
-        const { [fieldName]: value, ...errs } = errors
+        const { [fieldName]: value, ...errs } = forms[formName]?.errors
         !silent && handleErrors({ ...errs })
-        !silent && handleValids({ ...valids, [fieldName]: true })
+        !silent &&
+          handleValids({ ...forms[formName]?.valids, [fieldName]: true })
+        rerenderOnValidation &&
+          !disableRerenders.includes(fieldName) &&
+          rerender()
         return true
       } else {
         if (validation[fieldName].error && !silent) {
           handleErrors({
-            ...errors,
-            [fieldName]: validation[fieldName].error
+            ...forms[formName]?.errors,
+            [fieldName]: validation[fieldName].error || 'Invalid value'
           })
         }
-        !silent && handleValids({ ...valids, [fieldName]: false })
+        !silent &&
+          handleValids({ ...forms[formName]?.valids, [fieldName]: false })
+        rerenderOnValidation &&
+          !disableRerenders.includes(fieldName) &&
+          rerender()
         return false
       }
     } else return true
   }
 
-  const validateAll = (bypassedFieldNames: Array<string>) => {
+  const validateAll = (fieldNames: Array<string>) => {
+    const fieldsToValidate =
+      fieldNames.length === 0
+        ? Object.keys(forms[formName]?.values)
+        : fieldNames
     let errs: any = {}
 
     Object.keys(customValidation).forEach(fieldName => {
       if (
-        !validate(fieldName, values[fieldName]) &&
-        !bypassedFieldNames.includes(fieldName)
+        !validate(fieldName, forms[formName]?.values[fieldName]) &&
+        fieldsToValidate.includes(fieldName)
       ) {
         errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
       }
     })
-    Object.entries(values).forEach(([name, value]) => {
-      if (!validate(name, value) && !bypassedFieldNames.includes(name)) {
+    Object.entries(forms[formName]?.values).forEach(([name, value]) => {
+      if (!validate(name, value) && fieldsToValidate.includes(name)) {
         errs[name] = validation[name]?.error || 'Invalid value.'
       }
     })
 
     requireds.forEach(name => {
-      if (!values[name]) errs[name] = 'This field is mandatory.'
+      if (!forms[formName]?.values[name])
+        errs[name] = 'This field is mandatory.'
     })
 
-    handleErrors({ ...errors, ...errs })
+    handleErrors({ ...forms[formName]?.errors, ...errs })
 
-    if (isEmpty(errs) && isEmpty(errors)) {
+    if (isEmpty(errs) && isEmpty(forms[formName]?.errors)) {
       return true
     } else return false
   }
@@ -99,64 +141,66 @@ const useForm = ({
   const handleSubmit = (event: SyntheticEvent | null) => {
     if (event) event.preventDefault()
     if (validateAll(validateOnSubmit)) {
-      onSubmit(values)
+      onSubmit(forms[formName]?.values)
+      !rerenderOnValidation && rerenderOnSubmit && rerender()
     }
-  }
-
-  const cleanFieldError = (fieldName: string) => {
-    const { [fieldName]: deleted, ...errs } = errors
-    handleErrors({ ...errs })
   }
 
   const validateFieldOnChange = (fieldName: string, value: any) => {
     if (validateOnChange.includes(fieldName)) {
+      if (fieldName === 'password') {
+        handleValids(
+          forms[formName]?.values.confirmPassword
+            ? {
+                ...forms[formName]?.valids,
+                [fieldName]: null,
+                confirmPassword: null
+              }
+            : { ...forms[formName]?.valids, [fieldName]: null }
+        )
+      }
       validate(fieldName, value)
-    } else cleanFieldError(fieldName)
+    }
   }
 
   const handleChange = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement
     if (event.persist) event.persist()
-    setValues({ ...values, [target.name]: target.value })
+    setValues({ ...forms[formName]?.values, [target.name]: target.value })
     validateFieldOnChange(target.name, target.value)
-    if (!validateOnChange.includes(target.name)) {
-      handleValids(
-        values.confirmPassword
-          ? { ...valids, [target.name]: null, confirmPassword: null }
-          : { ...valids, [target.name]: null }
-      )
-    }
+    rerenderOnChange && !disableRerenders.includes(target.name) && rerender()
   }
 
   const handleChangeCheckbox = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement
     if (event.persist) event.persist()
     setValues({
-      ...values,
+      ...forms[formName]?.values,
       [target.name]: target.checked
     })
     validateFieldOnChange(target.name, target.checked)
   }
 
   const handleChangeRadio = (fieldName: string, fieldValue: any) => {
-    if (values[fieldName] !== fieldValue) {
-      setValues({ ...values, [fieldName]: fieldValue })
+    if (forms[formName]?.values[fieldName] !== fieldValue) {
+      setValues({ ...forms[formName]?.values, [fieldName]: fieldValue })
     }
     validateFieldOnChange(fieldName, fieldValue)
   }
 
   const handleBlur = (e: SyntheticEvent) => {
     const target = e.target as HTMLInputElement
-    const { [target.name]: deleted, ...errs }: any = errors
+    setValues({ ...forms[formName]?.values, [target.name]: target.value })
+    const { [target.name]: deleted, ...errs }: any = forms[formName]?.errors
     if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-      validate(target.name, values[target.name])
+      validate(target.name, forms[formName]?.values[target.name])
     }
   }
 
   const handleFileUpload = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement
     const { files } = target
-    const newFormState = { ...values }
+    const newFormState = { ...forms[formName]?.values }
 
     if (!newFormState[target.name]) {
       newFormState[target.name] = []
@@ -170,7 +214,8 @@ const useForm = ({
             ...newFormState[target.name],
             reader.result
           ]
-          return setValues(newFormState)
+          setValues(newFormState)
+          return null
         })()
         reader.readAsDataURL(files[i])
       }
@@ -190,25 +235,40 @@ const useForm = ({
       window.addEventListener('keydown', handleKeyDown)
     }
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [disableKeyListener, values])
+  }, [disableKeyListener, forms[formName]?.values])
 
   useEffect(() => {
-    if (isEmpty(values) && !isEmpty(defaultValues)) {
+    if (isEmpty(forms[formName]?.values) && !isEmpty(defaultValues)) {
       setValues(defaultValues)
       if (validateDefaultValuesOnMount) {
         Object.entries(defaultValues).forEach(([name, value]) => {
           validate(name, value)
         })
-      } else handleErrors({})
+      }
+      rerender()
     }
-  }, [values, defaultValues])
+  }, [forms[formName]?.values, validateDefaultValuesOnMount, defaultValues])
 
-  useEffect(() => () => setValues({}), [])
+  useEffect(() => {
+    if (!forms[formName]) {
+      setValues({})
+      handleValids({})
+      handleErrors({})
+      rerender()
+    }
+    return () => {
+      if (resetOnUnmount) {
+        setValues({})
+        handleValids({})
+        handleErrors({})
+      }
+    }
+  }, [forms[formName]])
 
   return {
-    errors,
-    valids,
-    values,
+    errors: forms[formName]?.errors || {},
+    valids: forms[formName]?.valids || {},
+    values: forms[formName]?.values || {},
     validate,
     validateAll,
     validation,
@@ -225,3 +285,4 @@ const useForm = ({
 }
 
 export default useForm
+export { standardValidation }
