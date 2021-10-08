@@ -14,18 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.standardValidation = void 0;
+exports.setForms = exports.forms = exports.standardValidation = void 0;
 const react_1 = require("react");
 const lodash_isempty_1 = __importDefault(require("lodash.isempty"));
 const validation_1 = __importDefault(require("./validation"));
 exports.standardValidation = validation_1.default;
 let forms = {};
-const setForm = (newVal, formName, prop) => (forms = Object.assign(Object.assign({}, forms), { [formName]: Object.assign(Object.assign({}, forms[formName]), { [prop]: newVal }) }));
+exports.forms = forms;
+const setForms = (newVal, formName, prop) => (exports.forms = forms = Object.assign(Object.assign({}, forms), { [formName]: Object.assign(Object.assign({}, forms[formName]), { [prop]: newVal }) }));
+exports.setForms = setForms;
 const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false, rerenderOnChange = false, rerenderOnValidation = true, rerenderOnSubmit = false, disableRerenders = [], resetOnUnmount = true }) => {
     var _a, _b, _c, _d, _e, _f;
-    const setValues = (value) => setForm(value, formName, 'values');
-    const handleErrors = (value) => setForm(value, formName, 'errors');
-    const handleValids = (value) => setForm(value, formName, 'valids');
+    const setValues = (value) => setForms(value, formName, 'values');
+    const handleErrors = (value) => setForms(value, formName, 'errors');
+    const handleValids = (value) => setForms(value, formName, 'valids');
     const [_, triggerRender] = (0, react_1.useState)(0);
     const rerender = () => triggerRender(Math.random());
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values)), customValidation);
@@ -37,31 +39,22 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
                 handleErrors(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.errors), { [fieldName]: 'This field is mandatory.' }));
             !silent &&
                 handleValids(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.valids), { [fieldName]: false }));
-            rerenderOnValidation &&
-                !disableRerenders.includes(fieldName) &&
-                rerender();
             return false;
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
-                const _g = (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors, _h = fieldName, value = _g[_h], errs = __rest(_g, [typeof _h === "symbol" ? _h : _h + ""]);
+                const _g = (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors, _h = fieldName, deleted = _g[_h], errs = __rest(_g, [typeof _h === "symbol" ? _h : _h + ""]);
                 !silent && handleErrors(Object.assign({}, errs));
                 !silent &&
                     handleValids(Object.assign(Object.assign({}, (_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids), { [fieldName]: true }));
-                rerenderOnValidation &&
-                    !disableRerenders.includes(fieldName) &&
-                    rerender();
                 return true;
             }
             else {
-                if (validation[fieldName].error && !silent) {
+                if (!silent) {
                     handleErrors(Object.assign(Object.assign({}, (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors), { [fieldName]: validation[fieldName].error || 'Invalid value' }));
                 }
                 !silent &&
                     handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: false }));
-                rerenderOnValidation &&
-                    !disableRerenders.includes(fieldName) &&
-                    rerender();
                 return false;
             }
         }
@@ -150,6 +143,9 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
             validate(target.name, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values[target.name]);
         }
+        rerenderOnValidation &&
+            !disableRerenders.includes(target.name) &&
+            rerender();
     };
     const handleFileUpload = (event) => {
         var _a;
@@ -205,14 +201,14 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             handleErrors({});
             rerender();
         }
-        return () => {
-            if (resetOnUnmount) {
-                setValues({});
-                handleValids({});
-                handleErrors({});
-            }
-        };
     }, [forms[formName]]);
+    (0, react_1.useEffect)(() => () => {
+        if (resetOnUnmount) {
+            setValues({});
+            handleValids({});
+            handleErrors({});
+        }
+    }, []);
     return {
         errors: ((_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.errors) || {},
         valids: ((_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.valids) || {},

@@ -5,8 +5,8 @@
 Why using use-form versus more complex libraries, such as [react-hook-form](https://react-hook-form.com/) or [formik](https://formik.org/)?
 
 - use-form is **simple**: you will get **all** the benefits of production-ready form validation, using code patterns  you already know, without the need to dive into deep documentation.
-- use-form is **lightweight**: it is a tiny library (7kB, 3kB gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
-- use-form is **fast**: it re-renders your component only when necessary (after validation).
+- use-form is **lightweight**: it is a tiny library (8kB, 3kB gzipped), with only 1 dependency ([lodash.isempty](https://www.npmjs.com/package/lodash.isempty)) and a minimal API that gives you **all** that you need.
+- use-form is **fast**: it re-renders your component only when you need to.
 - use-form is **un-opinionated**: it integrates seamlessly with robust UI libraries such as [material-ui](https://material-ui.com/) (with their `error`, `valid` or `helperText` props), but also with native HTML input tags.
 - use-form is **typechecked**: it reduces errors by always enforcing only the right types.
 
@@ -87,7 +87,8 @@ const options = {
       error: 'First name must be at least 2 characters long'
     }
   }
-  // validateOnChange: true
+  // By default, validation will be triggered on blur, but you can also trigger it on change:
+  validateOnChange: true
 }
 
 const MyComponent = () => {
@@ -104,16 +105,18 @@ const MyComponent = () => {
     <input
       type='text'
 
-      // Make sure to give the same name as in customValidation:
+      // Make sure to give the same field name as in customValidation:
       name='firstName'
       //
 
-      // By default, validation will be triggered on blur:
+      // If you want to trigger validation on blur (default), use `handleBlur`:
       onBlur={handleBlur}
+      //
 
-      // You can also trigger it on change, if you set the `validateOnChange` option to `true`:
+      // If you set the `validateOnChange` option to `true`:
       onChange={handleChange}
-      // If you don't, you don't even have to use onChange at all!
+      // (If you don't, you don't even have to use onChange at all!)
+      //
 
       // Input style can be modified according to validation:
       style={{
@@ -233,7 +236,7 @@ const options = {
 
 - `onSubmit` - Callback function to be called when form is submitted.
 - `defaultValues` - Object of field names and their corresponding default values.
-- `formName` - A unique name is required if two instances (or more) of `useForm` are concurrently mounted.
+- `formName` - A unique `formName` is required if two instances (or more) of `useForm` are concurrently mounted.
 - `requireds` - Array of field names that are required. Note that the `required` HTML attribute is ignored.
 - `customValidation`- Object of names and their corresponding validation test and optional error message if the test fails. These rules can override the default validation rules. See below for examples.
 - `bypassValidation` - Array of field names that will not be tested against validation rules. Note that if required fields are passed, they remain required.
@@ -245,7 +248,7 @@ const options = {
 - `validateOnSubmit` - Array of field names to validate when form is submitted. If provided, will override default behaviour and disable validation on submit for all fields, except those provided.
 - `rerenderOnValidation` - Boolean to rerender the component when any field is validated. Defaults to `true`.
 - `rerenderOnChange` - Boolean to rerender the component when form is changed. Defaults to `false`.
-- `rerenderOnSubmit` - Boolean to rerender the component when form is submitted. Defaults to `false`. Note that since `handleSubmit` triggers `validateAll`, setting this option won't have any effect if `rerenderOnValidation` is set to `true`.
+- `rerenderOnSubmit` - Boolean to rerender the component when form is submitted. Defaults to `false`.
 - `disableRerenders` - Array of field names that, if changed or validated, won't trigger a rerender.
 - `resetOnUnmount` - Boolean to reset `values`, `errors` and `valids` when component is unmounted. Defaults to `true`. If set to `false`, please make sure to give a unique `formName` to each instance of `useForm`.
 
@@ -267,4 +270,17 @@ The hook returns an object of properties to be used in your component:
 - `handleFileUpload` - Function that takes a change event from a file upload as argument and updates the `values` object.
 - `handleErrors` - Function to manually set the `errors` object.
 - `handleValids` - Function to manually set the `valids` object.
-- `setValues` - Function to manually set the `values` object (without triggering any validation).
+- `setValues` - Function to manually set the `values` object (without triggering any validation or rerender).
+- `rerender` - Function to manually trigger a rerender.
+
+### Exports
+
+```js
+import useForm, { standardValidation, forms, setForms } from '@nononsense/use-form'
+```
+
+The package's default export is the `useForm` hook. It also exports named exports:
+
+- `standardValidation` - Function that takes a form's values as argument and returns the standard validation rules & error messages.
+- `forms` - The state of all forms used across all instances of `useForm`, which includes `{ values, valids, errors }` for each form name.
+- `setForms` - Function to directly mutate the `forms` state if needed.

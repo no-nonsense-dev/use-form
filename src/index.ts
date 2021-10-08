@@ -23,7 +23,7 @@ interface options {
 }
 
 let forms: any = {}
-const setForm: Function = (newVal: object, formName: string, prop: string) =>
+const setForms: Function = (newVal: object, formName: string, prop: string) =>
   (forms = {
     ...forms,
     [formName]: {
@@ -51,9 +51,9 @@ const useForm = ({
   disableRerenders = [],
   resetOnUnmount = true
 }: options) => {
-  const setValues = (value: any) => setForm(value, formName, 'values')
-  const handleErrors = (value: any) => setForm(value, formName, 'errors')
-  const handleValids = (value: any) => setForm(value, formName, 'valids')
+  const setValues = (value: any) => setForms(value, formName, 'values')
+  const handleErrors = (value: any) => setForms(value, formName, 'errors')
+  const handleValids = (value: any) => setForms(value, formName, 'valids')
   const [_, triggerRender] = useState(0)
   const rerender = () => triggerRender(Math.random())
 
@@ -74,22 +74,16 @@ const useForm = ({
         })
       !silent &&
         handleValids({ ...forms[formName]?.valids, [fieldName]: false })
-      rerenderOnValidation &&
-        !disableRerenders.includes(fieldName) &&
-        rerender()
       return false
     } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
-        const { [fieldName]: value, ...errs } = forms[formName]?.errors
+        const { [fieldName]: deleted, ...errs } = forms[formName]?.errors
         !silent && handleErrors({ ...errs })
         !silent &&
           handleValids({ ...forms[formName]?.valids, [fieldName]: true })
-        rerenderOnValidation &&
-          !disableRerenders.includes(fieldName) &&
-          rerender()
         return true
       } else {
-        if (validation[fieldName].error && !silent) {
+        if (!silent) {
           handleErrors({
             ...forms[formName]?.errors,
             [fieldName]: validation[fieldName].error || 'Invalid value'
@@ -97,9 +91,6 @@ const useForm = ({
         }
         !silent &&
           handleValids({ ...forms[formName]?.valids, [fieldName]: false })
-        rerenderOnValidation &&
-          !disableRerenders.includes(fieldName) &&
-          rerender()
         return false
       }
     } else return true
@@ -195,6 +186,9 @@ const useForm = ({
     if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
       validate(target.name, forms[formName]?.values[target.name])
     }
+    rerenderOnValidation &&
+      !disableRerenders.includes(target.name) &&
+      rerender()
   }
 
   const handleFileUpload = (event: SyntheticEvent) => {
@@ -256,14 +250,18 @@ const useForm = ({
       handleErrors({})
       rerender()
     }
-    return () => {
+  }, [forms[formName]])
+
+  useEffect(
+    () => () => {
       if (resetOnUnmount) {
         setValues({})
         handleValids({})
         handleErrors({})
       }
-    }
-  }, [forms[formName]])
+    },
+    []
+  )
 
   return {
     errors: forms[formName]?.errors || {},
@@ -280,9 +278,10 @@ const useForm = ({
     handleChangeCheckbox,
     handleChangeRadio,
     handleFileUpload,
-    handleSubmit
+    handleSubmit,
+    rerender
   }
 }
 
 export default useForm
-export { standardValidation }
+export { standardValidation, forms, setForms }
