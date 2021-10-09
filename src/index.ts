@@ -63,15 +63,8 @@ const useForm = ({
   }
 
   const validate = (fieldName: string, value: any, silent: boolean = false) => {
-    if (
-      fieldName === 'password' &&
-      !silent &&
-      forms[formName]?.valids.confirmPassword
-    ) {
-      handleValids({
-        ...forms[formName]?.valids,
-        confirmPassword: null
-      })
+    if (fieldName === 'password' && !silent) {
+      validate('confirmPassword', forms[formName].values.confirmPassword, false)
     }
     if (
       requireds.includes(fieldName) &&
