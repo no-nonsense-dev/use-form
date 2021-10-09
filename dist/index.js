@@ -32,8 +32,10 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
     const rerender = () => triggerRender(Math.random());
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values)), customValidation);
     const validate = (fieldName, value, silent = false) => {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
-        if (fieldName === 'password' && ((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.valids.confirmPassword)) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        if (fieldName === 'password' &&
+            !silent &&
+            ((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.valids.confirmPassword)) {
             handleValids(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.valids), { confirmPassword: null }));
         }
         if (requireds.includes(fieldName) &&
@@ -46,8 +48,8 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
-                const _j = (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors, _k = fieldName, deleted = _j[_k], errs = __rest(_j, [typeof _k === "symbol" ? _k : _k + ""]);
                 if (!silent) {
+                    const _l = (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors, _m = fieldName, deleted = _l[_m], errs = __rest(_l, [typeof _m === "symbol" ? _m : _m + ""]);
                     handleErrors(Object.assign({}, errs));
                     handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: true }));
                 }
@@ -61,8 +63,14 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
                 return false;
             }
         }
-        else
+        else {
+            if (!silent) {
+                const _o = (_j = forms[formName]) === null || _j === void 0 ? void 0 : _j.errors, _p = fieldName, deleted = _o[_p], errs = __rest(_o, [typeof _p === "symbol" ? _p : _p + ""]);
+                handleErrors(Object.assign({}, errs));
+                handleValids(Object.assign(Object.assign({}, (_k = forms[formName]) === null || _k === void 0 ? void 0 : _k.valids), { [fieldName]: true }));
+            }
             return true;
+        }
     };
     const validateAll = (fieldNames) => {
         var _a, _b, _c, _d;

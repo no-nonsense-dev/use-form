@@ -63,7 +63,11 @@ const useForm = ({
   }
 
   const validate = (fieldName: string, value: any, silent: boolean = false) => {
-    if (fieldName === 'password' && forms[formName]?.valids.confirmPassword) {
+    if (
+      fieldName === 'password' &&
+      !silent &&
+      forms[formName]?.valids.confirmPassword
+    ) {
       handleValids({
         ...forms[formName]?.valids,
         confirmPassword: null
@@ -83,8 +87,8 @@ const useForm = ({
       return false
     } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
-        const { [fieldName]: deleted, ...errs } = forms[formName]?.errors
         if (!silent) {
+          const { [fieldName]: deleted, ...errs } = forms[formName]?.errors
           handleErrors({ ...errs })
           handleValids({ ...forms[formName]?.valids, [fieldName]: true })
         }
@@ -99,7 +103,14 @@ const useForm = ({
         }
         return false
       }
-    } else return true
+    } else {
+      if (!silent) {
+        const { [fieldName]: deleted, ...errs } = forms[formName]?.errors
+        handleErrors({ ...errs })
+        handleValids({ ...forms[formName]?.valids, [fieldName]: true })
+      }
+      return true
+    }
   }
 
   const validateAll = (fieldNames: Array<string>) => {
