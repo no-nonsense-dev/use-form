@@ -24,13 +24,13 @@ exports.forms = forms;
 const setForms = (newVal, formName, prop) => (exports.forms = forms = Object.assign(Object.assign({}, forms), { [formName]: Object.assign(Object.assign({}, forms[formName]), { [prop]: newVal }) }));
 exports.setForms = setForms;
 const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false, rerenderOnChange = false, rerenderOnValidation = true, rerenderOnSubmit = true, disableRerenders = [], resetOnUnmount = true }) => {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e;
     const setValues = (value) => setForms(value, formName, 'values');
     const handleErrors = (value) => setForms(value, formName, 'errors');
     const handleValids = (value) => setForms(value, formName, 'valids');
     const [_, triggerRender] = (0, react_1.useState)(0);
     const rerender = () => triggerRender(Math.random());
-    const validation = Object.assign(Object.assign({}, (0, validation_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values)), customValidation);
+    const validation = Object.assign(Object.assign({}, (0, validation_1.default)(formName)), customValidation);
     const validate = (fieldName, value, silent = false) => {
         var _a, _b, _c, _d, _e, _f, _g, _h;
         if (fieldName === 'password' && !silent) {
@@ -181,7 +181,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             window.addEventListener('keydown', handleKeyDown);
         }
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [disableKeyListener, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values]);
+    }, [disableKeyListener, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values]);
     (0, react_1.useEffect)(() => {
         var _a;
         if ((0, lodash_isempty_1.default)((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values) && !(0, lodash_isempty_1.default)(defaultValues)) {
@@ -193,7 +193,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             }
             rerender();
         }
-    }, [(_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values, validateDefaultValuesOnMount, defaultValues]);
+    }, [(_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values, validateDefaultValuesOnMount, defaultValues]);
     (0, react_1.useEffect)(() => {
         if (!forms[formName]) {
             setValues({});
@@ -210,9 +210,9 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         }
     }, []);
     return {
-        errors: ((_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.errors) || {},
-        valids: ((_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.valids) || {},
-        values: ((_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.values) || {},
+        errors: ((_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors) || {},
+        valids: ((_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids) || {},
+        values: ((_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.values) || {},
         validate,
         validateAll,
         validation,

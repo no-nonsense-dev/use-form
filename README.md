@@ -280,6 +280,6 @@ The package's default export is the `useForm` hook. It also exports named export
 import useForm, { standardValidation, forms, setForms } from '@nononsense/use-form'
 ```
 
-- `standardValidation` - Function that takes a form's values as argument and returns the standard validation rules & error messages.
+- `standardValidation` - Function that takes a form's name as argument and returns the standard validation rules & error messages for this form.
 - `forms` - The state of all forms used across all instances of `useForm`, which includes `{ values, valids, errors }` for each form name.
 - `setForms` - Function to directly mutate the `forms` state if needed.

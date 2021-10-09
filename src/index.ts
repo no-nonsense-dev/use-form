@@ -58,7 +58,7 @@ const useForm = ({
   const rerender = () => triggerRender(Math.random())
 
   const validation = {
-    ...standardValidation(forms[formName]?.values),
+    ...standardValidation(formName),
     ...customValidation
   }
 
