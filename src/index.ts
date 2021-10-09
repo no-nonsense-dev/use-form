@@ -47,7 +47,7 @@ const useForm = ({
   validateDefaultValuesOnMount = false,
   rerenderOnChange = false,
   rerenderOnValidation = true,
-  rerenderOnSubmit = false,
+  rerenderOnSubmit = true,
   disableRerenders = [],
   resetOnUnmount = true
 }: options) => {
@@ -63,6 +63,12 @@ const useForm = ({
   }
 
   const validate = (fieldName: string, value: any, silent: boolean = false) => {
+    if (fieldName === 'password' && forms[formName]?.valids.confirmPassword) {
+      handleValids({
+        ...forms[formName]?.valids,
+        confirmPassword: null
+      })
+    }
     if (
       requireds.includes(fieldName) &&
       ((typeof value === 'object' && isEmpty(value)) || !value)
@@ -139,17 +145,6 @@ const useForm = ({
 
   const validateFieldOnChange = (fieldName: string, value: any) => {
     if (validateOnChange.includes(fieldName)) {
-      if (fieldName === 'password') {
-        handleValids(
-          forms[formName]?.values.confirmPassword
-            ? {
-                ...forms[formName]?.valids,
-                [fieldName]: null,
-                confirmPassword: null
-              }
-            : { ...forms[formName]?.valids, [fieldName]: null }
-        )
-      }
       validate(fieldName, value)
     }
   }

@@ -248,7 +248,7 @@ const options = {
 - `validateOnSubmit` - Array of field names to validate when form is submitted. If provided, will override default behaviour and disable validation on submit for all fields, except those provided.
 - `rerenderOnValidation` - Boolean to rerender the component when any field is validated. Defaults to `true`.
 - `rerenderOnChange` - Boolean to rerender the component when form is changed. Defaults to `false`.
-- `rerenderOnSubmit` - Boolean to rerender the component when form is submitted. Defaults to `false`.
+- `rerenderOnSubmit` - Boolean to rerender the component when form is submitted. Defaults to `true`.
 - `disableRerenders` - Array of field names that, if changed or validated, won't trigger a rerender.
 - `resetOnUnmount` - Boolean to reset `values`, `errors` and `valids` when component is unmounted. Defaults to `true`. If set to `false`, please make sure to give a unique `formName` to each instance of `useForm`.
 
@@ -275,11 +275,11 @@ The hook returns an object of properties to be used in your component:
 
 ### Exports
 
+The package's default export is the `useForm` hook. It also exports named exports:
+
 ```js
 import useForm, { standardValidation, forms, setForms } from '@nononsense/use-form'
 ```
-
-The package's default export is the `useForm` hook. It also exports named exports:
 
 - `standardValidation` - Function that takes a form's values as argument and returns the standard validation rules & error messages.
 - `forms` - The state of all forms used across all instances of `useForm`, which includes `{ values, valids, errors }` for each form name.
