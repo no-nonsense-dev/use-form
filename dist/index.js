@@ -101,8 +101,8 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             event.preventDefault();
         if (validateAll(validateOnSubmit)) {
             onSubmit((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values);
-            !rerenderOnValidation && rerenderOnSubmit && rerender();
         }
+        rerenderOnSubmit && rerender();
     };
     const validateFieldOnChange = (fieldName, value) => {
         if (validateOnChange.includes(fieldName)) {
