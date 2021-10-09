@@ -139,8 +139,8 @@ const useForm = ({
     if (event) event.preventDefault()
     if (validateAll(validateOnSubmit)) {
       onSubmit(forms[formName]?.values)
-      !rerenderOnValidation && rerenderOnSubmit && rerender()
     }
+    rerenderOnSubmit && rerender()
   }
 
   const validateFieldOnChange = (fieldName: string, value: any) => {
