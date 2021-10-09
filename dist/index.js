@@ -136,21 +136,12 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         validateFieldOnChange(target.name, target.checked);
         rerenderOnChange && !disableRerenders.includes(target.name) && rerender();
     };
-    const handleChangeRadio = (fieldName, fieldValue) => {
-        var _a, _b;
-        if (((_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[fieldName]) !== fieldValue) {
-            setValues(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values), { [fieldName]: fieldValue }));
-        }
-        validateFieldOnChange(fieldName, fieldValue);
-        rerenderOnChange && !disableRerenders.includes(fieldName) && rerender();
-    };
     const handleBlur = (e) => {
-        var _a, _b, _c;
+        var _a;
         const target = e.target;
         setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.value }));
-        const _d = (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.errors, _e = target.name, deleted = _d[_e], errs = __rest(_d, [typeof _e === "symbol" ? _e : _e + ""]);
         if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-            validate(target.name, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values[target.name], false);
+            validate(target.name, target.value, false);
         }
         rerenderOnValidation &&
             !disableRerenders.includes(target.name) &&
@@ -231,7 +222,6 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         handleChange,
         handleBlur,
         handleChangeCheckbox,
-        handleChangeRadio,
         handleFileUpload,
         handleSubmit,
         rerender

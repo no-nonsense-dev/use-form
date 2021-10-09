@@ -175,20 +175,11 @@ const useForm = ({
     rerenderOnChange && !disableRerenders.includes(target.name) && rerender()
   }
 
-  const handleChangeRadio = (fieldName: string, fieldValue: any) => {
-    if (forms[formName]?.values[fieldName] !== fieldValue) {
-      setValues({ ...forms[formName]?.values, [fieldName]: fieldValue })
-    }
-    validateFieldOnChange(fieldName, fieldValue)
-    rerenderOnChange && !disableRerenders.includes(fieldName) && rerender()
-  }
-
   const handleBlur = (e: SyntheticEvent) => {
     const target = e.target as HTMLInputElement
     setValues({ ...forms[formName]?.values, [target.name]: target.value })
-    const { [target.name]: deleted, ...errs }: any = forms[formName]?.errors
     if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-      validate(target.name, forms[formName]?.values[target.name], false)
+      validate(target.name, target.value, false)
     }
     rerenderOnValidation &&
       !disableRerenders.includes(target.name) &&
@@ -280,7 +271,6 @@ const useForm = ({
     handleChange,
     handleBlur,
     handleChangeCheckbox,
-    handleChangeRadio,
     handleFileUpload,
     handleSubmit,
     rerender

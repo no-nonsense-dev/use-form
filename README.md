@@ -266,7 +266,6 @@ The hook returns an object of properties to be used in your component:
 - `handleChange` - Function that takes a change event as argument and updates the `values` object.
 - `handleBlur` - Function that takes a blur event as argument and applies `validate` on the event target.
 - `handleChangeCheckbox` - Function that takes a change event from a checkbox input as argument and updates the `values` object.
-- `handleChangeRadio` - Function that takes a change event from a radio as argument and updates the `values` object.
 - `handleFileUpload` - Function that takes a change event from a file upload as argument and updates the `values` object.
 - `handleErrors` - Function to manually set the `errors` object.
 - `handleValids` - Function to manually set the `valids` object.
