@@ -30,42 +30,50 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
     const handleValids = (value) => setForms(value, formName, 'valids');
     const [_, triggerRender] = (0, react_1.useState)(0);
     const rerender = () => triggerRender(Math.random());
+    (0, react_1.useEffect)(() => {
+        if (!forms[formName]) {
+            setValues({});
+            handleValids({});
+            handleErrors({});
+            rerender();
+        }
+    }, [forms[formName]]);
     const validation = Object.assign(Object.assign({}, (0, validation_1.default)(formName)), customValidation);
     const validate = (fieldName, value, silent = false) => {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         if (fieldName === 'password' && !silent) {
-            validate('confirmPassword', forms[formName].values.confirmPassword, false);
+            validate('confirmPassword', (_b = (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b.confirmPassword, false);
         }
         if (requireds.includes(fieldName) &&
             ((typeof value === 'object' && (0, lodash_isempty_1.default)(value)) || !value)) {
             if (!silent) {
-                handleErrors(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.errors), { [fieldName]: 'This field is mandatory.' }));
-                handleValids(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.valids), { [fieldName]: false }));
+                handleErrors(Object.assign(Object.assign({}, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors), { [fieldName]: 'This field is mandatory.' }));
+                handleValids(Object.assign(Object.assign({}, (_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids), { [fieldName]: false }));
             }
             return false;
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
                 if (!silent) {
-                    const _j = (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors, _k = fieldName, deleted = _j[_k], errs = __rest(_j, [typeof _k === "symbol" ? _k : _k + ""]);
+                    const _l = (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors, _m = fieldName, deleted = _l[_m], errs = __rest(_l, [typeof _m === "symbol" ? _m : _m + ""]);
                     handleErrors(Object.assign({}, errs));
-                    handleValids(Object.assign(Object.assign({}, (_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids), { [fieldName]: true }));
+                    handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: true }));
                 }
                 return true;
             }
             else {
                 if (!silent) {
-                    handleErrors(Object.assign(Object.assign({}, (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors), { [fieldName]: validation[fieldName].error || 'Invalid value' }));
-                    handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: false }));
+                    handleErrors(Object.assign(Object.assign({}, (_g = forms[formName]) === null || _g === void 0 ? void 0 : _g.errors), { [fieldName]: validation[fieldName].error || 'Invalid value' }));
+                    handleValids(Object.assign(Object.assign({}, (_h = forms[formName]) === null || _h === void 0 ? void 0 : _h.valids), { [fieldName]: false }));
                 }
                 return false;
             }
         }
         else {
             if (!silent) {
-                const _l = (_g = forms[formName]) === null || _g === void 0 ? void 0 : _g.errors, _m = fieldName, deleted = _l[_m], errs = __rest(_l, [typeof _m === "symbol" ? _m : _m + ""]);
+                const _o = (_j = forms[formName]) === null || _j === void 0 ? void 0 : _j.errors, _p = fieldName, deleted = _o[_p], errs = __rest(_o, [typeof _p === "symbol" ? _p : _p + ""]);
                 handleErrors(Object.assign({}, errs));
-                handleValids(Object.assign(Object.assign({}, (_h = forms[formName]) === null || _h === void 0 ? void 0 : _h.valids), { [fieldName]: true }));
+                handleValids(Object.assign(Object.assign({}, (_k = forms[formName]) === null || _k === void 0 ? void 0 : _k.valids), { [fieldName]: true }));
             }
             return true;
         }
@@ -194,14 +202,6 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             rerender();
         }
     }, [(_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values, validateDefaultValuesOnMount, defaultValues]);
-    (0, react_1.useEffect)(() => {
-        if (!forms[formName]) {
-            setValues({});
-            handleValids({});
-            handleErrors({});
-            rerender();
-        }
-    }, [forms[formName]]);
     (0, react_1.useEffect)(() => () => {
         if (resetOnUnmount) {
             setValues({});

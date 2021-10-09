@@ -57,6 +57,15 @@ const useForm = ({
   const [_, triggerRender] = useState(0)
   const rerender = () => triggerRender(Math.random())
 
+  useEffect(() => {
+    if (!forms[formName]) {
+      setValues({})
+      handleValids({})
+      handleErrors({})
+      rerender()
+    }
+  }, [forms[formName]])
+
   const validation = {
     ...standardValidation(formName),
     ...customValidation
@@ -64,7 +73,7 @@ const useForm = ({
 
   const validate = (fieldName: string, value: any, silent: boolean = false) => {
     if (fieldName === 'password' && !silent) {
-      validate('confirmPassword', forms[formName].values.confirmPassword, false)
+      validate('confirmPassword', forms[formName]?.values?.confirmPassword, false)
     }
     if (
       requireds.includes(fieldName) &&
@@ -237,15 +246,6 @@ const useForm = ({
       rerender()
     }
   }, [forms[formName]?.values, validateDefaultValuesOnMount, defaultValues])
-
-  useEffect(() => {
-    if (!forms[formName]) {
-      setValues({})
-      handleValids({})
-      handleErrors({})
-      rerender()
-    }
-  }, [forms[formName]])
 
   useEffect(
     () => () => {
