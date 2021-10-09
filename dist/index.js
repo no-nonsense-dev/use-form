@@ -107,6 +107,9 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
     const validateFieldOnChange = (fieldName, value) => {
         if (validateOnChange.includes(fieldName)) {
             validate(fieldName, value);
+            rerenderOnValidation &&
+                !disableRerenders.includes(fieldName) &&
+                rerender();
         }
     };
     const handleChange = (event) => {
@@ -125,6 +128,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             event.persist();
         setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.checked }));
         validateFieldOnChange(target.name, target.checked);
+        rerenderOnChange && !disableRerenders.includes(target.name) && rerender();
     };
     const handleChangeRadio = (fieldName, fieldValue) => {
         var _a, _b;
@@ -132,6 +136,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             setValues(Object.assign(Object.assign({}, (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values), { [fieldName]: fieldValue }));
         }
         validateFieldOnChange(fieldName, fieldValue);
+        rerenderOnChange && !disableRerenders.includes(fieldName) && rerender();
     };
     const handleBlur = (e) => {
         var _a, _b, _c;

@@ -146,6 +146,9 @@ const useForm = ({
   const validateFieldOnChange = (fieldName: string, value: any) => {
     if (validateOnChange.includes(fieldName)) {
       validate(fieldName, value)
+      rerenderOnValidation &&
+        !disableRerenders.includes(fieldName) &&
+        rerender()
     }
   }
 
@@ -165,6 +168,7 @@ const useForm = ({
       [target.name]: target.checked
     })
     validateFieldOnChange(target.name, target.checked)
+    rerenderOnChange && !disableRerenders.includes(target.name) && rerender()
   }
 
   const handleChangeRadio = (fieldName: string, fieldValue: any) => {
@@ -172,6 +176,7 @@ const useForm = ({
       setValues({ ...forms[formName]?.values, [fieldName]: fieldValue })
     }
     validateFieldOnChange(fieldName, fieldValue)
+    rerenderOnChange && !disableRerenders.includes(fieldName) && rerender()
   }
 
   const handleBlur = (e: SyntheticEvent) => {
