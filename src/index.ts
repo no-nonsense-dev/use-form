@@ -73,20 +73,21 @@ const useForm = ({
       requireds.includes(fieldName) &&
       ((typeof value === 'object' && isEmpty(value)) || !value)
     ) {
-      !silent &&
+      if (!silent) {
         handleErrors({
           ...forms[formName]?.errors,
           [fieldName]: 'This field is mandatory.'
         })
-      !silent &&
         handleValids({ ...forms[formName]?.valids, [fieldName]: false })
+      }
       return false
     } else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
       if (validation[fieldName].test(value)) {
         const { [fieldName]: deleted, ...errs } = forms[formName]?.errors
-        !silent && handleErrors({ ...errs })
-        !silent &&
+        if (!silent) {
+          handleErrors({ ...errs })
           handleValids({ ...forms[formName]?.valids, [fieldName]: true })
+        }
         return true
       } else {
         if (!silent) {
@@ -94,9 +95,8 @@ const useForm = ({
             ...forms[formName]?.errors,
             [fieldName]: validation[fieldName].error || 'Invalid value'
           })
-        }
-        !silent &&
           handleValids({ ...forms[formName]?.valids, [fieldName]: false })
+        }
         return false
       }
     } else return true
@@ -111,14 +111,14 @@ const useForm = ({
 
     Object.keys(customValidation).forEach(fieldName => {
       if (
-        !validate(fieldName, forms[formName]?.values[fieldName]) &&
+        !validate(fieldName, forms[formName]?.values[fieldName], false) &&
         fieldsToValidate.includes(fieldName)
       ) {
         errs[fieldName] = validation[fieldName]?.error || 'Invalid value.'
       }
     })
     Object.entries(forms[formName]?.values).forEach(([name, value]) => {
-      if (!validate(name, value) && fieldsToValidate.includes(name)) {
+      if (!validate(name, value, false) && fieldsToValidate.includes(name)) {
         errs[name] = validation[name]?.error || 'Invalid value.'
       }
     })
@@ -145,7 +145,7 @@ const useForm = ({
 
   const validateFieldOnChange = (fieldName: string, value: any) => {
     if (validateOnChange.includes(fieldName)) {
-      validate(fieldName, value)
+      validate(fieldName, value, false)
       rerenderOnValidation &&
         !disableRerenders.includes(fieldName) &&
         rerender()
@@ -184,7 +184,7 @@ const useForm = ({
     setValues({ ...forms[formName]?.values, [target.name]: target.value })
     const { [target.name]: deleted, ...errs }: any = forms[formName]?.errors
     if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-      validate(target.name, forms[formName]?.values[target.name])
+      validate(target.name, forms[formName]?.values[target.name], false)
     }
     rerenderOnValidation &&
       !disableRerenders.includes(target.name) &&
@@ -236,7 +236,7 @@ const useForm = ({
       setValues(defaultValues)
       if (validateDefaultValuesOnMount) {
         Object.entries(defaultValues).forEach(([name, value]) => {
-          validate(name, value)
+          validate(name, value, false)
         })
       }
       rerender()

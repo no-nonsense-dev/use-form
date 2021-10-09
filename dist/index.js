@@ -38,26 +38,26 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         }
         if (requireds.includes(fieldName) &&
             ((typeof value === 'object' && (0, lodash_isempty_1.default)(value)) || !value)) {
-            !silent &&
+            if (!silent) {
                 handleErrors(Object.assign(Object.assign({}, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.errors), { [fieldName]: 'This field is mandatory.' }));
-            !silent &&
                 handleValids(Object.assign(Object.assign({}, (_d = forms[formName]) === null || _d === void 0 ? void 0 : _d.valids), { [fieldName]: false }));
+            }
             return false;
         }
         else if (validation[fieldName] && !bypassValidation.includes(fieldName)) {
             if (validation[fieldName].test(value)) {
                 const _j = (_e = forms[formName]) === null || _e === void 0 ? void 0 : _e.errors, _k = fieldName, deleted = _j[_k], errs = __rest(_j, [typeof _k === "symbol" ? _k : _k + ""]);
-                !silent && handleErrors(Object.assign({}, errs));
-                !silent &&
+                if (!silent) {
+                    handleErrors(Object.assign({}, errs));
                     handleValids(Object.assign(Object.assign({}, (_f = forms[formName]) === null || _f === void 0 ? void 0 : _f.valids), { [fieldName]: true }));
+                }
                 return true;
             }
             else {
                 if (!silent) {
                     handleErrors(Object.assign(Object.assign({}, (_g = forms[formName]) === null || _g === void 0 ? void 0 : _g.errors), { [fieldName]: validation[fieldName].error || 'Invalid value' }));
-                }
-                !silent &&
                     handleValids(Object.assign(Object.assign({}, (_h = forms[formName]) === null || _h === void 0 ? void 0 : _h.valids), { [fieldName]: false }));
+                }
                 return false;
             }
         }
@@ -72,14 +72,14 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         let errs = {};
         Object.keys(customValidation).forEach(fieldName => {
             var _a, _b;
-            if (!validate(fieldName, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[fieldName]) &&
+            if (!validate(fieldName, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values[fieldName], false) &&
                 fieldsToValidate.includes(fieldName)) {
                 errs[fieldName] = ((_b = validation[fieldName]) === null || _b === void 0 ? void 0 : _b.error) || 'Invalid value.';
             }
         });
         Object.entries((_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.values).forEach(([name, value]) => {
             var _a;
-            if (!validate(name, value) && fieldsToValidate.includes(name)) {
+            if (!validate(name, value, false) && fieldsToValidate.includes(name)) {
                 errs[name] = ((_a = validation[name]) === null || _a === void 0 ? void 0 : _a.error) || 'Invalid value.';
             }
         });
@@ -106,7 +106,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
     };
     const validateFieldOnChange = (fieldName, value) => {
         if (validateOnChange.includes(fieldName)) {
-            validate(fieldName, value);
+            validate(fieldName, value, false);
             rerenderOnValidation &&
                 !disableRerenders.includes(fieldName) &&
                 rerender();
@@ -144,7 +144,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
         setValues(Object.assign(Object.assign({}, (_a = forms[formName]) === null || _a === void 0 ? void 0 : _a.values), { [target.name]: target.value }));
         const _d = (_b = forms[formName]) === null || _b === void 0 ? void 0 : _b.errors, _e = target.name, deleted = _d[_e], errs = __rest(_d, [typeof _e === "symbol" ? _e : _e + ""]);
         if (validateOnBlur.includes(target.name) || validateOnBlur.length === 0) {
-            validate(target.name, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values[target.name]);
+            validate(target.name, (_c = forms[formName]) === null || _c === void 0 ? void 0 : _c.values[target.name], false);
         }
         rerenderOnValidation &&
             !disableRerenders.includes(target.name) &&
@@ -191,7 +191,7 @@ const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () =
             setValues(defaultValues);
             if (validateDefaultValuesOnMount) {
                 Object.entries(defaultValues).forEach(([name, value]) => {
-                    validate(name, value);
+                    validate(name, value, false);
                 });
             }
             rerender();
