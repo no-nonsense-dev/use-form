@@ -3,23 +3,23 @@ import isEmpty from 'lodash.isempty'
 import standardValidation from './validation'
 
 export interface FormOptions {
-  formName: string
-  defaultValues: object
-  onSubmit: Function
-  requireds: Array<string>
-  bypassValidation: Array<string>
-  onKeyDown: Function | null
-  disableKeyListener: boolean
-  customValidation: any
-  validateOnChange: Array<string>
-  validateOnBlur: Array<string>
-  validateOnSubmit: Array<string>
-  validateDefaultValuesOnMount: boolean
-  rerenderOnValidation: boolean
-  rerenderOnChange: boolean
-  rerenderOnSubmit: boolean
-  disableRerenders: Array<string>
-  resetOnUnmount: boolean
+  formName?: string
+  defaultValues?: object
+  onSubmit?: Function
+  requireds?: Array<string>
+  bypassValidation?: Array<string>
+  onKeyDown?: Function | null
+  disableKeyListener?: boolean
+  customValidation?: any
+  validateOnChange?: Array<string>
+  validateOnBlur?: Array<string>
+  validateOnSubmit?: Array<string>
+  validateDefaultValuesOnMount?: boolean
+  rerenderOnValidation?: boolean
+  rerenderOnChange?: boolean
+  rerenderOnSubmit?: boolean
+  disableRerenders?: Array<string>
+  resetOnUnmount?: boolean
 }
 
 export interface Form {
