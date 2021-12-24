@@ -1,26 +1,7 @@
 import { useState, useEffect, SyntheticEvent } from 'react'
 import isEmpty from 'lodash.isempty'
 import standardValidation from './validation'
-
-interface options {
-  formName: string
-  defaultValues: object
-  onSubmit: Function
-  requireds: Array<string>
-  bypassValidation: Array<string>
-  onKeyDown: Function | null
-  disableKeyListener: boolean
-  customValidation: any
-  validateOnChange: Array<string>
-  validateOnBlur: Array<string>
-  validateOnSubmit: Array<string>
-  validateDefaultValuesOnMount: boolean
-  rerenderOnValidation: boolean
-  rerenderOnChange: boolean
-  rerenderOnSubmit: boolean
-  disableRerenders: Array<string>
-  resetOnUnmount: boolean
-}
+import { FormOptions, Form } from '../types'
 
 let forms: any = {}
 const setForms: Function = (newVal: object, formName: string, prop: string) =>
@@ -45,12 +26,12 @@ const useForm = ({
   validateOnBlur = [],
   validateOnSubmit = [],
   validateDefaultValuesOnMount = false,
-  rerenderOnChange = false,
+  rerenderOnChange = true,
   rerenderOnValidation = true,
   rerenderOnSubmit = true,
   disableRerenders = [],
   resetOnUnmount = true
-}: options) => {
+}: FormOptions) => {
   const setValues = (value: any) => setForms(value, formName, 'values')
   const handleErrors = (value: any) => setForms(value, formName, 'errors')
   const handleValids = (value: any) => setForms(value, formName, 'valids')
@@ -274,8 +255,8 @@ const useForm = ({
     handleFileUpload,
     handleSubmit,
     rerender
-  }
+  } as Form
 }
 
 export default useForm
-export { standardValidation, forms, setForms }
+export { standardValidation, forms, setForms, FormOptions, Form }
