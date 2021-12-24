@@ -23,7 +23,7 @@ let forms = {};
 exports.forms = forms;
 const setForms = (newVal, formName, prop) => (exports.forms = forms = Object.assign(Object.assign({}, forms), { [formName]: Object.assign(Object.assign({}, forms[formName]), { [prop]: newVal }) }));
 exports.setForms = setForms;
-const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false, rerenderOnChange = false, rerenderOnValidation = true, rerenderOnSubmit = true, disableRerenders = [], resetOnUnmount = true }) => {
+const useForm = ({ defaultValues = {}, formName = 'UnnamedForm', onSubmit = () => { }, requireds = [], bypassValidation = [], onKeyDown = null, disableKeyListener = false, customValidation = {}, validateOnChange = [], validateOnBlur = [], validateOnSubmit = [], validateDefaultValuesOnMount = false, rerenderOnChange = true, rerenderOnValidation = true, rerenderOnSubmit = true, disableRerenders = [], resetOnUnmount = true }) => {
     var _a, _b, _c, _d, _e;
     const setValues = (value) => setForms(value, formName, 'values');
     const handleErrors = (value) => setForms(value, formName, 'errors');

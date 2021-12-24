@@ -4,6 +4,9 @@
     "lib": ["es2017", "dom"],
     "esModuleInterop": true,
     "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "types",
+    "declarationMap": true
   },
   "include": ["src/**/*"]
 }

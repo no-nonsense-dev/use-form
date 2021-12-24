@@ -1,7 +1,44 @@
-import { useState, useEffect, SyntheticEvent } from 'react'
+import { useState, useEffect, SyntheticEvent, Dispatch, SetStateAction } from 'react'
 import isEmpty from 'lodash.isempty'
 import standardValidation from './validation'
-import { FormOptions, Form } from '../types'
+
+export interface FormOptions {
+  formName: string
+  defaultValues: object
+  onSubmit: Function
+  requireds: Array<string>
+  bypassValidation: Array<string>
+  onKeyDown: Function | null
+  disableKeyListener: boolean
+  customValidation: any
+  validateOnChange: Array<string>
+  validateOnBlur: Array<string>
+  validateOnSubmit: Array<string>
+  validateDefaultValuesOnMount: boolean
+  rerenderOnValidation: boolean
+  rerenderOnChange: boolean
+  rerenderOnSubmit: boolean
+  disableRerenders: Array<string>
+  resetOnUnmount: boolean
+}
+
+export interface Form {
+  values: any
+  errors: any
+  valids: any
+  validate: (fieldName: string, value: any, silent: boolean) => boolean
+  validateAll: (fieldNames: Array<string>) => boolean
+  validation: any
+  setValues: Dispatch<SetStateAction<any>>
+  handleErrors: Dispatch<SetStateAction<any>>
+  handleValids: Dispatch<SetStateAction<any>>
+  handleChange: (event: SyntheticEvent) => void
+  handleBlur: (event: SyntheticEvent) => void
+  handleChangeCheckbox: (event: SyntheticEvent) => void
+  handleFileUpload: (event: SyntheticEvent) => void
+  handleSubmit: (event: SyntheticEvent) => void
+  rerender: Function
+}
 
 let forms: any = {}
 const setForms: Function = (newVal: object, formName: string, prop: string) =>
@@ -259,4 +296,4 @@ const useForm = ({
 }
 
 export default useForm
-export { standardValidation, forms, setForms, FormOptions, Form }
+export { standardValidation, forms, setForms, }
